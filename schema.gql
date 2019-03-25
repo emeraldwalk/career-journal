@@ -1,6 +1,20 @@
+type Block {
+  type: BlockType
+  spans: [Span]!
+}
+
+input BlockInput {
+  type: BlockType
+  spans: [SpanInput]!
+}
+
+enum BlockType {
+  P
+}
+
 type Entry {
 	id: ID!
-	content: [Span!]!
+	content: [Block!]!
 	createdAt: AWSDateTime
 	date: AWSDate
 	tags: [String]
@@ -13,9 +27,15 @@ type EntryConnection {
 	nextToken: String
 }
 
+input EntryInput {
+	content: [SpanInput!]!
+	date: AWSDate
+	tags: [String]!
+	title: String!
+}
+
 type Mutation {
-	addEntry(title: String!): Entry
-	addSpan(entryId: ID!, content: String!): Span
+	addEntry(entry: EntryInput): Entry
 }
 
 type Query {
@@ -23,9 +43,17 @@ type Query {
 }
 
 type Span {
-	entryId: ID!
-	spanId: String!
 	content: String!
+	type: SpanType!
+}
+
+input SpanInput {
+	content: String!
+	type: SpanType!
+}
+
+enum SpanType {
+	Text
 }
 
 schema {
