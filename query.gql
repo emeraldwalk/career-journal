@@ -1,0 +1,58 @@
+mutation addSpan {
+  addEntry(entry: {
+    content: [{
+      type: Paragraph
+      spans: [
+        {
+          content: "Hello"
+          type: Text
+        }
+      ]
+    }],
+    tags: ["React"],
+    title: "Some title"
+  }) {
+    id
+    content {
+      spans {
+        type
+        content
+      }
+      type
+    }
+    tags
+    title
+  }
+}
+
+query getEntries {
+  getEntries {
+    entries {
+      id
+      title
+      content {
+        spans {
+          content
+          type
+        }
+      }
+    }
+  }
+}
+
+
+
+{
+    "version" : "2017-02-28",
+    "operation" : "PutItem",
+    "key" : {
+        ## If object "id" should come from GraphQL arguments, change to $util.dynamodb.toDynamoDBJson($ctx.args.id)
+        "id": $util.dynamodb.toDynamoDBJson($util.autoId()),
+    },
+    ## "attributeValues" : $util.dynamodb.toMapValuesJson($ctx.args.entry)
+    "attributeValues" : {
+      "content" : $util.dynamodb.toList(ctx.args.entry.content),
+        "title" : { "S" : "${ctx.args.entry.title}" },
+        "tags" : $util.dynamodb.toList($ctx.args.entry.tags)
+    }
+}

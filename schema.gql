@@ -1,0 +1,34 @@
+type Entry {
+	id: ID!
+	content: [Span!]!
+	createdAt: AWSDateTime
+	date: AWSDate
+	tags: [String]
+	title: String!
+	updatedAt: AWSDateTime
+}
+
+type EntryConnection {
+	entries: [Entry]
+	nextToken: String
+}
+
+type Mutation {
+	addEntry(title: String!): Entry
+	addSpan(entryId: ID!, content: String!): Span
+}
+
+type Query {
+	getEntries(limit: Int, nextToken: String): EntryConnection
+}
+
+type Span {
+	entryId: ID!
+	spanId: String!
+	content: String!
+}
+
+schema {
+	query: Query
+	mutation: Mutation
+}
