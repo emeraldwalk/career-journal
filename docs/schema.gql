@@ -8,27 +8,6 @@ type Entry {
 	updatedAt: AWSDateTime
 }
 
-type EntryConnection {
-	entries: [Entry]
-	nextToken: String
-}
-
-input EntryInput {
-	content: String!
-	date: AWSDate
-	tags: [String]!
-	title: String!
-}
-
-type Mutation {
-	addEntry(entry: EntryInput): Entry
-}
-
 type Query {
-	getEntries(limit: Int, nextToken: String): EntryConnection
-}
-
-schema {
-	query: Query
-	mutation: Mutation
+	fetchEntry(id: ID!): Entry
 }
