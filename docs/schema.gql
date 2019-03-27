@@ -1,20 +1,6 @@
-type Block {
-  type: BlockType
-  spans: [Span]!
-}
-
-input BlockInput {
-  type: BlockType
-  spans: [SpanInput]!
-}
-
-enum BlockType {
-  P
-}
-
 type Entry {
 	id: ID!
-	content: [Block!]!
+	content: String!
 	createdAt: AWSDateTime
 	date: AWSDate
 	tags: [String]
@@ -28,7 +14,7 @@ type EntryConnection {
 }
 
 input EntryInput {
-	content: [SpanInput!]!
+	content: String!
 	date: AWSDate
 	tags: [String]!
 	title: String!
@@ -40,20 +26,6 @@ type Mutation {
 
 type Query {
 	getEntries(limit: Int, nextToken: String): EntryConnection
-}
-
-type Span {
-	content: String!
-	type: SpanType!
-}
-
-input SpanInput {
-	content: String!
-	type: SpanType!
-}
-
-enum SpanType {
-	Text
 }
 
 schema {
