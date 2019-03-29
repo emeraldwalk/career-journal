@@ -1,0 +1,192 @@
+﻿schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Block {
+  spans: [Span!]!
+}
+
+type Entry {
+  blocks: [Block!]!
+  createdAt: AWSDateTime
+  date: AWSDate!
+  id: ID!
+  tags: [String!]!
+  title: String!
+  updatedAt: AWSDateTime
+}
+
+type EntryConnection {
+  items: [Entry]
+  nextToken: String
+}
+
+type Mutation {
+  createEntry(input: CreateEntryInput!): Entry
+  createTag(input: CreateTagInput!): Tag
+  deleteEntry(input: DeleteEntryInput!): Entry
+  deleteTag(input: DeleteTagInput!): Tag
+  updateEntry(input: UpdateEntryInput!): Entry
+  updateTag(input: UpdateTagInput!): Tag
+}
+
+type Query {
+  fetchEntry(id: ID!): Entry
+  getEntry(id: ID!): Entry
+  getTag(id: ID!, parentId: ID!): Tag
+  listEntries(filter: TableEntryFilterInput, limit: Int, nextToken: String): EntryConnection
+  listTags(filter: TableTagFilterInput, limit: Int, nextToken: String): TagConnection
+}
+
+type Span {
+  content: String!
+  type: SpanType!
+}
+
+type Subscription {
+  onCreateEntry(createdAt: AWSDateTime, date: AWSDate, id: ID, tags: [String!], title: String): Entry @aws_subscribe(mutations : ["createEntry"])
+  onCreateTag(icon: String, id: ID, parentId: ID, value: String): Tag @aws_subscribe(mutations : ["createTag"])
+  onDeleteEntry(createdAt: AWSDateTime, date: AWSDate, id: ID, tags: [String!], title: String): Entry @aws_subscribe(mutations : ["deleteEntry"])
+  onDeleteTag(icon: String, id: ID, parentId: ID, value: String): Tag @aws_subscribe(mutations : ["deleteTag"])
+  onUpdateEntry(createdAt: AWSDateTime, date: AWSDate, id: ID, tags: [String!], title: String): Entry @aws_subscribe(mutations : ["updateEntry"])
+  onUpdateTag(icon: String, id: ID, parentId: ID, value: String): Tag @aws_subscribe(mutations : ["updateTag"])
+}
+
+type Tag {
+  icon: String
+  id: ID!
+  parentId: ID
+  value: String!
+}
+
+type TagConnection {
+  items: [Tag]
+  nextToken: String
+}
+
+enum SpanType {
+  image
+  text
+}
+
+input BlockInput {
+  spans: [SpanInput!]!
+}
+
+input CreateEntryInput {
+  blocks: [BlockInput!]!
+  createdAt: AWSDateTime
+  date: AWSDate
+  tags: [String!]!
+  title: String!
+  updatedAt: AWSDateTime
+}
+
+input CreateTagInput {
+  icon: String
+  parentId: ID
+  value: String!
+}
+
+input DeleteEntryInput {
+  id: ID!
+}
+
+input DeleteTagInput {
+  id: ID!
+  parentId: ID!
+}
+
+input SpanInput {
+  content: String!
+  type: SpanType!
+}
+
+input TableBooleanFilterInput {
+  eq: Boolean
+  ne: Boolean
+}
+
+input TableEntryFilterInput {
+  createdAt: TableStringFilterInput
+  date: TableStringFilterInput
+  id: TableIDFilterInput
+  tags: TableStringFilterInput
+  title: TableStringFilterInput
+  updatedAt: TableStringFilterInput
+}
+
+input TableFloatFilterInput {
+  between: [Float]
+  contains: Float
+  eq: Float
+  ge: Float
+  gt: Float
+  le: Float
+  lt: Float
+  ne: Float
+  notContains: Float
+}
+
+input TableIDFilterInput {
+  beginsWith: ID
+  between: [ID]
+  contains: ID
+  eq: ID
+  ge: ID
+  gt: ID
+  le: ID
+  lt: ID
+  ne: ID
+  notContains: ID
+}
+
+input TableIntFilterInput {
+  between: [Int]
+  contains: Int
+  eq: Int
+  ge: Int
+  gt: Int
+  le: Int
+  lt: Int
+  ne: Int
+  notContains: Int
+}
+
+input TableStringFilterInput {
+  beginsWith: String
+  between: [String]
+  contains: String
+  eq: String
+  ge: String
+  gt: String
+  le: String
+  lt: String
+  ne: String
+  notContains: String
+}
+
+input TableTagFilterInput {
+  icon: TableStringFilterInput
+  id: TableIDFilterInput
+  parentId: TableIDFilterInput
+  value: TableStringFilterInput
+}
+
+input UpdateEntryInput {
+  createdAt: AWSDateTime
+  date: AWSDate
+  id: ID!
+  tags: [String!]
+  title: String
+  updatedAt: AWSDateTime
+}
+
+input UpdateTagInput {
+  icon: String
+  id: ID!
+  parentId: ID!
+  value: String
+}
