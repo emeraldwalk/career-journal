@@ -6,6 +6,7 @@ const config = {
   devServer: {
     contentBase: './dist'
   },
+  devtool: 'source-map',
   entry: './src/index',
   mode: process.env.NODE_ENV || 'development',
   module: {

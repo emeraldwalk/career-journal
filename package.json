@@ -9,7 +9,9 @@
   },
   "scripts": {
     "build": "webpack --config webpack.config.js",
-    "start": "webpack-dev-server --open"
+    "deploy-cloud": "aws --region us-east-1 cloudformation create-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal",
+    "start": "webpack-dev-server --open",
+    "update-cloud": "aws --region us-east-1 cloudformation update-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal"
   },
   "keywords": [],
   "author": "",
@@ -36,7 +38,11 @@
     "webpack-dev-server": "^3.2.1"
   },
   "dependencies": {
+    "aws-appsync": "^1.7.2",
+    "aws-appsync-react": "^1.2.7",
+    "graphql-tag": "^2.10.1",
     "react": "^16.8.5",
+    "react-apollo": "^2.5.3",
     "react-dom": "^16.8.5",
     "typeface-open-sans": "0.0.54"
   }

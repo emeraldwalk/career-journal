@@ -1,10 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import ApolloProvider from './ApolloProvider';
 
 import 'typeface-open-sans';
 import './index.scss';
+import App from './components/App/App';
 
 ReactDOM.render(
-  <div>Hello</div>,
+  <ApolloProvider>
+    <App/>
+  </ApolloProvider>,
   document.getElementById('app')
 );

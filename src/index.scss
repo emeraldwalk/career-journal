@@ -8,3 +8,32 @@ body {
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
 }
+
+%h1 { font-size: 2rem; }
+%h2 { font-size: 1.5rem; }
+%h3 { font-size: 1.2rem; }
+%input { border: none; font-size: inherit; }
+
+h1 { @extend %h1; }
+h2 { @extend %h2; }
+h3 { @extend %h3; }
+
+.c_category-list {
+  &__header {
+    @extend %h2;
+  }
+}
+.c_category-detail {
+  &__header {
+    @extend %h3;
+    &__input {
+      @extend %input;
+    }
+  }
+  margin: 10px 0;
+}
+.c_tag-detail {
+  &__input {
+    @extend %input;
+  }
+}
