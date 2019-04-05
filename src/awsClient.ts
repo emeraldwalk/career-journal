@@ -1,6 +1,6 @@
 import AWSAppSyncClient, { AUTH_TYPE } from 'aws-appsync';
 
-import config from './aws.json';
+import config from '../config/aws.json';
 
 export const client = new AWSAppSyncClient({
   url: config.aws_appsync_graphqlEndpoint,
