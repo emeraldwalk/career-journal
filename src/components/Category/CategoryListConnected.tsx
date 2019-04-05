@@ -21,21 +21,21 @@ export interface CategoryListConnectedProps {
 };
 
 const CategoryListConnected: React.SFC<CategoryListConnectedProps> = ({}) => (
-    <ListTagsQuery query={ListTags}>
-      {({ data, loading }) => {
-        if(loading || !data) {
-          return <div>Loading...</div>;
-        }
+  <ListTagsQuery query={ListTags}>
+    {({ data, loading }) => {
+      if(loading || !data) {
+        return <div>Loading...</div>;
+      }
 
-        const tags = createTagMap(data.listTags.items);
+      const tags = createTagMap(data.listTags.items);
 
-        return (
-          <CategoryList
-            tags={tags}
-          />
-        );
-      }}
-    </ListTagsQuery>
+      return (
+        <CategoryList
+          tags={tags}
+        />
+      );
+    }}
+  </ListTagsQuery>
 );
 
 export default CategoryListConnected;

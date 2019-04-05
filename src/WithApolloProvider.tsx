@@ -7,7 +7,7 @@ export interface WithProviderProps {
   children: React.ReactNode
 }
 
-const WithProvider: React.SFC<WithProviderProps> = ({
+const WithApolloProvider: React.SFC<WithProviderProps> = ({
   children
 }) => (
   <ApolloProvider client={client}>
@@ -17,4 +17,4 @@ const WithProvider: React.SFC<WithProviderProps> = ({
   </ApolloProvider>
 );
 
-export default WithProvider;
+export default WithApolloProvider;
