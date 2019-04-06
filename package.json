@@ -43,6 +43,7 @@
     "graphql-tag": "^2.10.1",
     "react": "^16.8.5",
     "react-apollo": "^2.5.3",
+    "react-apollo-hooks": "^0.4.4",
     "react-dom": "^16.8.5",
     "typeface-open-sans": "0.0.54"
   }

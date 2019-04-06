@@ -1,2 +1,2 @@
 export { App } from './App';
-export { CategoryList, CategoryListConnected } from './Category';
+export { TagList, TagListEdit } from './Tag';

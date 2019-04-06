@@ -37,3 +37,9 @@ h3 { @extend %h3; }
     @extend %input;
   }
 }
+
+.c_tag-list {
+  &__header {
+    @extend %h2;
+  }
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { CategoryListConnected as CategoryList } from '..';
+import { TagListEdit } from '..';
 
 export interface AppProps {
 };
@@ -7,7 +7,7 @@ export interface AppProps {
 const App: React.SFC<AppProps> = ({}) => (
   <div>
     <h1>Journal</h1>
-    <CategoryList/>
+    <TagListEdit/>
   </div>
 );
 
