@@ -2,6 +2,12 @@ export interface Dict<T> {
   [key: string]: T
 }
 
+export function forOf<T>(
+  target: Dict<T>
+): Array<T> {
+  return Object.keys(target).map(key => target[key]);
+}
+
 /**
  * Group items in an array by a given key.
  */

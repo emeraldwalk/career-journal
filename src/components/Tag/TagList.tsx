@@ -1,7 +1,8 @@
 import React from 'react';
 import { useQuery } from 'react-apollo-hooks';
-import { LIST_TAGS_QUERY, ListTagsData, ListTagsVariables } from '../../queries/tags';
-import { getCategory } from '../../model/tags';
+import { LIST_TAGS_QUERY, ListTagsData, ListTagsVariables } from '../../queries/list-tags';
+import { forOf } from '../../util/common';
+import { getCategory } from '../../util/tags';
 
 export interface TagListProps {
   categoryId?: string
@@ -30,7 +31,7 @@ const TagList: React.SFC<TagListProps> = ({
       <header className="c_tag-list__header">{parent.value}</header>
       <ul>
         {
-          tags.map(tag => <li key={tag.id}>{tag.value}</li>)
+          forOf(tags).map(tag => <li key={tag.id}>{tag.value}</li>)
         }
       </ul>
     </div>
