@@ -1,4 +1,5 @@
-import React, { useReducer } from 'react';
+import React, { useState } from 'react';
+import { TagEdit } from '..';
 import { useMutation, useQuery } from 'react-apollo-hooks';
 import {
   LIST_TAGS_QUERY,
@@ -8,7 +9,7 @@ import {
   UpdateTagData,
   UpdateTagVariables
 } from '../../queries/tags';
-import { Dict } from '../../model/common';
+import { Dict, pick } from '../../model/common';
 import { getCategory, Tag } from '../../model/tags';
 
 export interface TagListEditProps {
@@ -18,47 +19,6 @@ export interface TagListEditProps {
 export interface TagListEditState {
   category: ReturnType<typeof getCategory>,
   dirty: Dict<Tag>
-}
-
-function categoryReducer(
-  state: TagListEditState,
-  action: { type: 'ClearDirty' } | { type: 'UpdateValue', payload: { id: string, value: string } }
-): TagListEditState {
-  switch(action.type) {
-    case 'ClearDirty':
-      return {
-        ...state,
-        dirty: {}
-      };
-
-    case 'UpdateValue':
-      const tagIndex = state.category.tags.findIndex(tag => tag.id === action.payload.id);
-      const tag = {
-        ...state.category.tags[tagIndex],
-        value: action.payload.value
-      };
-      const tags = [
-        ...state.category.tags.slice(0, tagIndex),
-        tag,
-        ...state.category.tags.slice(tagIndex + 1)
-      ];
-
-      return {
-        category: {
-          ...state.category,
-          tags
-        },
-        dirty: {
-          ...state.dirty,
-          [tag.id]: {
-            ...tag
-          }
-        }
-      };
-
-    default:
-      return state;
-  }
 }
 
 const TagListEdit: React.SFC<TagListEditProps> = ({
@@ -75,64 +35,113 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     return <div>Error</div>
   }
 
-  const [state, dispatch] = useReducer(
-    categoryReducer,
+  const category = getCategory(
+    data.listTags.items,
+    categoryId
+  );
+
+  const [dirty, setDirty] = useState(
+    {} as Dict<boolean>
+  );
+
+  const [newTag, setNewTag] = useState(
     {
-      category: getCategory(
-        data.listTags.items,
-        categoryId
-      ),
-      dirty: {}
+      id: '-1',
+      parentId: category.parent.id,
+      value: ''
     }
   );
 
-  console.log(state);
+  const [tags, setTags] = useState(
+    category.tags
+  );
 
-  const { parent, tags } = state.category;
+  function flagAsDirty(id: string) {
+    setDirty({
+      ...dirty,
+      [id]: true
+    });
+  }
+
+  function saveDirty() {
+    Object
+      .keys(dirty)
+      .forEach(id => {
+        if(/^-/.test(id)) {
+          console.log('Create tag:, id');
+        }
+        else {
+          updateTag({
+            variables: {
+              input: pick(
+                tags[id],
+                'icon', 'id', 'parentId', 'value'
+              )
+            }
+          });
+        }
+    });
+
+    setDirty({});
+  }
+
+  /** Set a tag in the tags dictionary. */
+  function setTag(tag: Tag) {
+    setTags({
+      ...tags,
+      [tag.id]: tag
+    });
+  }
+
+  console.log('category', category);
+  console.log('tags:', tags);
+  console.log('dirty:', dirty);
 
   return (
     <div className="c_tag-list-edit">
-      <header className="c_tag-list-edit__header">{parent.value}</header>
+      <header className="c_tag-list-edit__header">
+        <span>{category.parent.value}</span>
+        <button disabled={Object.keys(dirty).length === 0} onClick={saveDirty}>Done</button>
+      </header>
       <ul>
         {
-          tags.map(tag => (
-            <li key={tag.id}>
-              <input
-                onBlur={() => {
-                  Object.keys(state.dirty).forEach(id => updateTag({
-                    variables: {
-                      input: {
-                        icon: state.dirty[id].icon,
-                        id: state.dirty[id].id,
-                        parentId: state.dirty[id].parentId,
-                        value: state.dirty[id].value
-                      }
-                    }
-                  }));
-                  dispatch({ type: 'ClearDirty' });
-                }}
-                onChange={event => dispatch({
-                  type: 'UpdateValue',
-                  payload: {
-                    id: tag.id,
-                    value: event.currentTarget.value
-                  }
-                })}
-                type="text" value={tag.value}
-                />
-              {/* <button onClick={() => updateTag({
-                variables: {
-                  input: {
-                    icon: tag.icon,
-                    id: tag.id,
-                    parentId: tag.parentId,
-                    value: 'Testing 2'
-                  }
-                }
-              })}>+</button> */}
-            </li>
+          Object.keys(tags).map(id => (
+            <TagEdit
+              key={id}
+              action="X"
+              el="li"
+              tag={tags[id]}
+              onAction={console.log}
+              onChange={value => {
+                flagAsDirty(id);
+                setTag({
+                  ...tags[id],
+                  value
+                });
+              }}
+            />
           ))
         }
+        <TagEdit
+          action="+"
+          el="li"
+          tag={newTag}
+          onAction={() => {
+            flagAsDirty(newTag.id);
+            setTag(newTag);
+            setNewTag({
+              ...newTag,
+              id: String(Number(newTag.id) - 1),
+              value: ''
+            })
+          }}
+          onChange={value => {
+            setNewTag({
+              ...newTag,
+              value
+            });
+          }}
+        />
       </ul>
     </div>
   );

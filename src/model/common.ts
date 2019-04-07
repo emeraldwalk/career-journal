@@ -18,3 +18,18 @@ export function groupBy<T, K extends keyof T>(
     };
   }, {} as Dict<T[]>);
 }
+
+export function pick<T, K extends keyof T>(
+  t: T,
+  ...keys: K[]
+): Pick<T, K> {
+  return keys.reduce((memo, key) => {
+    return {
+      ...memo,
+      [key]: t[key]
+    };
+  }, {} as Pick<T, K>);
+}
+// export function replaceBy<T, K extends keyof T>(
+
+// )

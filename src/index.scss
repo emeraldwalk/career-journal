@@ -12,34 +12,29 @@ body {
 %h1 { font-size: 2rem; }
 %h2 { font-size: 1.5rem; }
 %h3 { font-size: 1.2rem; }
-%input { border: none; font-size: inherit; }
+%input { font-size: inherit; }
 
 h1 { @extend %h1; }
 h2 { @extend %h2; }
 h3 { @extend %h3; }
 
-.c_category-list {
+.c_tag-list,
+.c_tag-list-edit {
   &__header {
     @extend %h2;
-  }
-}
-.c_category-detail {
-  &__header {
-    @extend %h3;
-    &__input {
-      @extend %input;
+    display: flex;
+    :first-child {
+      flex: 1 0;
     }
   }
-  margin: 10px 0;
 }
-.c_tag-detail {
+.c_tag-edit {
+  display: flex;
   &__input {
     @extend %input;
+    flex: 1 0;
   }
-}
-
-.c_tag-list {
-  &__header {
-    @extend %h2;
+  &__action {
+    flex: 0 0 24px;
   }
 }

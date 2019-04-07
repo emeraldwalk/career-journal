@@ -1,4 +1,4 @@
-import { groupBy } from "./common";
+import { groupBy, Dict } from "./common";
 
 export interface CreateTagInput {
   icon?: string,
@@ -35,7 +35,7 @@ export function getCategory(
 ) {
   const parent = allTags.find(
     tag => tag.id === categoryId
-  ) || { value: 'Categories' };
+  ) || { id: '__ROOT__', value: 'Categories' };
 
   const tags = groupBy(
     allTags,
@@ -44,6 +44,11 @@ export function getCategory(
 
   return {
     parent,
-    tags
+    tags: tags.reduce((memo, tag) => {
+      return {
+        ...memo,
+        [tag.id]: tag
+      };
+    }, {} as Dict<Tag>)
   };
 }
