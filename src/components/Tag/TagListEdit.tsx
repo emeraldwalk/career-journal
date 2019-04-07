@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { TagEdit } from '..';
 import { useMutation, useQuery } from 'react-apollo-hooks';
 
@@ -45,10 +45,10 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     return <div>Error</div>
   }
 
-  const category = getCategory(
+  const category = useMemo(() => getCategory(
     data.listTags.items,
     categoryId
-  );
+  ), []);
 
   const [pendingCreate] = useState(new Cache<Tag>());
   const [pendingDelete] = useState(new Cache<Tag>());
