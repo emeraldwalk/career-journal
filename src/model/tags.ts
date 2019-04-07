@@ -1,29 +1,5 @@
 import { groupBy, Dict } from "./common";
-
-export interface CreateTagInput {
-  icon?: string,
-  parentId: string,
-  value: string
-}
-
-export interface UpdateTagInput {
-  icon?: String
-  id: string,
-  parentId: string,
-  value: String
-}
-
-export interface Tag {
-  icon?: string,
-  id: string,
-  parentId: string,
-  value: string
-}
-
-export interface TagConnection {
-  items: Tag[],
-  nextToken?: string
-}
+import { Tag } from "../gql-schema";
 
 /**
  * Build a category object containing a category tag with

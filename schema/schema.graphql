@@ -19,25 +19,24 @@ type Entry {
 }
 
 type EntryConnection {
-  items: [Entry]
+  items: [Entry!]!
   nextToken: String
 }
 
 type Mutation {
-  createEntry(input: CreateEntryInput!): Entry
-  createTag(input: CreateTagInput!): Tag
-  deleteEntry(input: DeleteEntryInput!): Entry
-  deleteTag(input: DeleteTagInput!): Tag
-  updateEntry(input: UpdateEntryInput!): Entry
-  updateTag(input: UpdateTagInput!): Tag
+  createEntry(input: CreateEntryInput!): Entry!
+  createTag(input: CreateTagInput!): Tag!
+  deleteEntry(input: DeleteEntryInput!): Entry!
+  deleteTag(input: DeleteTagInput!): Tag!
+  updateEntry(input: UpdateEntryInput!): Entry!
+  updateTag(input: UpdateTagInput!): Tag!
 }
 
 type Query {
-  fetchEntry(id: ID!): Entry
   getEntry(id: ID!): Entry
   getTag(id: ID!, parentId: ID!): Tag
-  listEntries(filter: TableEntryFilterInput, limit: Int, nextToken: String): EntryConnection
-  listTags(filter: TableTagFilterInput, limit: Int, nextToken: String): TagConnection
+  listEntries(filter: TableEntryFilterInput, limit: Int, nextToken: String): EntryConnection!
+  listTags(filter: TableTagFilterInput, limit: Int, nextToken: String): TagConnection!
 }
 
 type Span {
@@ -57,12 +56,12 @@ type Subscription {
 type Tag {
   icon: String
   id: ID!
-  parentId: ID
+  parentId: ID!
   value: String!
 }
 
 type TagConnection {
-  items: [Tag]
+  items: [Tag!]!
   nextToken: String
 }
 
@@ -78,7 +77,7 @@ input BlockInput {
 input CreateEntryInput {
   blocks: [BlockInput!]!
   createdAt: AWSDateTime
-  date: AWSDate
+  date: AWSDate!
   tags: [String!]!
   title: String!
   updatedAt: AWSDateTime
@@ -86,7 +85,7 @@ input CreateEntryInput {
 
 input CreateTagInput {
   icon: String
-  parentId: ID
+  parentId: ID!
   value: String!
 }
 
@@ -177,10 +176,10 @@ input TableTagFilterInput {
 
 input UpdateEntryInput {
   createdAt: AWSDateTime
-  date: AWSDate
+  date: AWSDate!
   id: ID!
   tags: [String!]
-  title: String
+  title: String!
   updatedAt: AWSDateTime
 }
 
@@ -188,5 +187,5 @@ input UpdateTagInput {
   icon: String
   id: ID!
   parentId: ID!
-  value: String
+  value: String!
 }

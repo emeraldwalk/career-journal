@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { TagConnection, UpdateTagInput } from '../model/tags';
+import { Tag, TagConnection, UpdateTagInput } from '../gql-schema';
 
 export interface ListTagsVariables {
 }
@@ -23,6 +23,7 @@ export const LIST_TAGS_QUERY = gql`
       items {
         ...TagFields
       }
+      nextToken
     }
   }
   ${TAG_FIELDS_FRAGMENT}
@@ -33,6 +34,7 @@ export interface UpdateTagVariables {
 }
 
 export interface UpdateTagData {
+  updateTag: Tag
 }
 
 export const UPDATE_TAG_MUTATION = gql`

@@ -1,0 +1,3 @@
+scalar AWSDate
+scalar AWSDateTime
+directive @aws_subscribe(mutations: [String!]!) on FIELD_DEFINITION
