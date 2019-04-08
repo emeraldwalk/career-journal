@@ -14,7 +14,7 @@ import {
   UpdateTagVariables
 } from '../../queries/update-tag';
 
-import { default as Cache } from '../../util/cache';
+import { remove, set } from '../../util/array';
 import { Dict, pick } from '../../util/common';
 import { getCategory } from '../../util/tags';
 import { Tag } from '../../gql-schema';
@@ -50,9 +50,9 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     categoryId
   ), []);
 
-  const [pendingCreate] = useState(new Cache<Tag>());
-  const [pendingDelete] = useState(new Cache<Tag>());
-  const [pendingUpdate] = useState(new Cache<Tag>());
+  const [pendingCreate, setPendingCreate] = useState([] as string[]);
+  const [pendingDelete, setPendingDelete] = useState([] as string[]);
+  const [pendingUpdate, setPendingUpdate] = useState([] as string[]);
 
   const [newTag, setNewTag] = useState(
     {
@@ -83,39 +83,45 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   }
 
   function onDone() {
-    pendingDelete.getAll().forEach(tag => {
-      console.log('Delete tag:', tag.id);
+    pendingDelete.forEach(id => {
+      console.log('Delete tag:', id);
     });
 
-    pendingCreate.getAll().forEach(tag => {
-      console.log('Create tag:', tag.id);
+    pendingCreate.forEach(id => {
+      console.log('Create tag:', id);
     });
 
-    pendingUpdate.getAll().forEach(tag => {
+    pendingUpdate.forEach(id => {
       updateTag({
         variables: {
           input: pick(
-            tag,
+            tags[id],
             'icon', 'id', 'parentId', 'value'
           )
         }
       }).then(({ data }) => data && setTag(data.updateTag));
     });
 
-    pendingCreate.clear();
-    pendingDelete.clear();
-    pendingUpdate.clear();
+    setPendingCreate([]);
+    setPendingDelete([]);
+    setPendingUpdate([]);
   }
 
   console.groupCollapsed('Data');
-  console.log('create:', pendingCreate.getAll());
-  console.log('delete:', pendingDelete.getAll());
-  console.log('update:', pendingUpdate.getAll());
+  console.log('create:', pendingCreate);
+  console.log('delete:', pendingDelete);
+  console.log('update:', pendingUpdate);
   console.log('tags:', JSON.stringify(tags, undefined, '  '));
   console.groupEnd();
 
   function onAdd(tag: Tag) {
-    pendingCreate.set(tag.id, tag);
+    setPendingCreate(
+      set(
+        pendingCreate,
+        tag.id
+      )
+    );
+
     setTag(tag);
     setNewTag({
       ...tag,
@@ -125,18 +131,24 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   }
 
   function onChange(tag: Tag) {
-    const cache = pendingCreate.has(tag.id)
+    const pendingCreateOrUpdate = pendingCreate.includes(tag.id)
       ? pendingCreate
       : pendingUpdate;
 
-    cache.set(tag.id, tag);
+    set(pendingCreateOrUpdate, tag.id);
     setTag(tag);
   }
 
   function onDelete(tag: Tag) {
-    pendingCreate.delete(tag.id);
-    pendingUpdate.delete(tag.id);
-    pendingDelete.set(tag.id, tag);
+    setPendingCreate(
+      remove(pendingCreate, tag.id)
+    );
+    setPendingUpdate(
+      remove(pendingUpdate, tag.id)
+    );
+    setPendingDelete(
+      set(pendingDelete, tag.id)
+    );
     deleteTag(tag);
   }
 

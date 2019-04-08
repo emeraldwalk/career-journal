@@ -2,12 +2,6 @@ export interface Dict<T> {
   [key: string]: T
 }
 
-export function forOf<T>(
-  target: Dict<T>
-): Array<T> {
-  return Object.keys(target).map(key => target[key]);
-}
-
 /**
  * Group items in an array by a given key.
  */
@@ -25,6 +19,20 @@ export function groupBy<T, K extends keyof T>(
   }, {} as Dict<T[]>);
 }
 
+/**
+ * Factory for a predicate that compares a given value
+ * against a value in an object.
+ */
+export function matchKey<T, K extends keyof T>(
+  key: K,
+  value: T[K]
+) {
+  return function doMatchKey(
+    item: T) {
+    return item[key] === value;
+  }
+}
+
 export function pick<T, K extends keyof T>(
   t: T,
   ...keys: K[]
@@ -36,6 +44,12 @@ export function pick<T, K extends keyof T>(
     };
   }, {} as Pick<T, K>);
 }
-// export function replaceBy<T, K extends keyof T>(
 
-// )
+/**
+ * Get all values from an object into an array.
+ */
+export function values<T>(
+  target: Dict<T>
+): Array<T> {
+  return Object.keys(target).map(key => target[key]);
+}
