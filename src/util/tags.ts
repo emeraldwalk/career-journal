@@ -9,7 +9,6 @@ export function getCategory(
   allTags: Tag[],
   categoryId: string
 ) {
-  console.log('getCategory()');
   const parent = allTags.find(
     tag => tag.id === categoryId
   ) || { id: '__ROOT__', value: 'Categories' };

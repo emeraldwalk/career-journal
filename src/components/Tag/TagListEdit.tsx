@@ -1,23 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TagEdit } from '..';
-import { useMutation, useQuery } from 'react-apollo-hooks';
-
-import {
-  LIST_TAGS_QUERY,
-  ListTagsData,
-  ListTagsVariables
-} from '../../queries/list-tags';
-
-import {
-  UPDATE_TAG_MUTATION,
-  UpdateTagData,
-  UpdateTagVariables
-} from '../../queries/update-tag';
-
 import { remove, set } from '../../util/array';
-import { Dict, pick } from '../../util/common';
+import { Dict, pick, values } from '../../util/common';
 import { getCategory } from '../../util/tags';
 import { Tag } from '../../gql-schema';
+import { useCreateTag, useDeleteTag, useListTags, useUpdateTag } from '../../queries/hooks';
 
 export interface TagListEditProps {
   categoryId?: string
@@ -31,11 +18,44 @@ export interface TagListEditState {
 const TagListEdit: React.SFC<TagListEditProps> = ({
   categoryId = '__ROOT__'
 }) => {
-  const { data, error, loading } = useQuery<ListTagsData, ListTagsVariables>(LIST_TAGS_QUERY);
-  const updateTag = useMutation<
-    UpdateTagData,
-    UpdateTagVariables
-  >(UPDATE_TAG_MUTATION);
+  const { data, error, loading } = useListTags();
+
+  const createTag = useCreateTag();
+  const deleteTag = useDeleteTag();
+  const updateTag = useUpdateTag();
+
+  const [pendingCreate, setPendingCreate] = useState([] as string[]);
+  const [pendingDelete, setPendingDelete] = useState([] as string[]);
+  const [pendingUpdate, setPendingUpdate] = useState([] as string[]);
+  const [newTag, setNewTag] = useState<Tag>({ id: '-1', parentId: categoryId, value: '' });
+  const [categoryName, setCategoryName] = useState('');
+  const [tags, setTags] = useState<Dict<Tag>>({});
+
+  useEffect(() => {
+    if(data) {
+      const { parent, tags: tagsInit } = getCategory(
+        data.listTags.items,
+        categoryId
+      );
+      setCategoryName(parent.value);
+      setTags(tagsInit);
+    }
+  }, [data]);
+
+  // console.groupCollapsed('Tags');
+  // function tagLog(tag: Tag) {
+  //   return `${tag.id}: ${tag.value} ${tag.parentId}`;
+  // }
+  // function tagsLog(label: string, tags: Tag[] = []) {
+  //   console.log(label, JSON.stringify(
+  //     tags.filter(tag => tag.parentId === '__ROOT__').map(tagLog),
+  //     undefined,
+  //     '  '
+  //   ));
+  // }
+  // tagsLog('items:', data && data.listTags.items);
+  // tagsLog('tags:', values(tags));
+  // console.groupEnd();
 
   if(loading || !data) {
     return <div>Loading...</div>;
@@ -45,37 +65,8 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     return <div>Error</div>
   }
 
-  const category = useMemo(() => getCategory(
-    data.listTags.items,
-    categoryId
-  ), []);
-
-  const [pendingCreate, setPendingCreate] = useState([] as string[]);
-  const [pendingDelete, setPendingDelete] = useState([] as string[]);
-  const [pendingUpdate, setPendingUpdate] = useState([] as string[]);
-
-  const [newTag, setNewTag] = useState(
-    {
-      id: '-1',
-      parentId: category.parent.id,
-      value: ''
-    }
-  );
-
-  const [tags, setTags] = useState(
-    category.tags
-  );
-
-  function deleteTag(tag: Tag) {
-    delete tags[tag.id];
-    setTags({
-      ...tags
-    });
-  }
-
   /** Set a tag in the tags dictionary. */
   function setTag(tag: Tag) {
-    console.log('setTag:', tag);
     setTags({
       ...tags,
       [tag.id]: tag
@@ -84,11 +75,31 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
 
   function onDone() {
     pendingDelete.forEach(id => {
-      console.log('Delete tag:', id);
+      deleteTag({
+        variables: {
+          input: {
+            id: id,
+            parentId: categoryId
+          }
+        }
+      });
     });
 
     pendingCreate.forEach(id => {
-      console.log('Create tag:', id);
+      createTag({
+        variables: {
+          input: pick(
+            tags[id],
+            'icon', 'parentId', 'value'
+          )
+        }
+      })
+      .then(({ data }) => {
+        if(data) {
+          delete tags[id];
+          setTag(data.createTag);
+        }
+      });
     });
 
     pendingUpdate.forEach(id => {
@@ -99,20 +110,18 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
             'icon', 'id', 'parentId', 'value'
           )
         }
-      }).then(({ data }) => data && setTag(data.updateTag));
+      })
+      .then(({ data }) => {
+        if(data) {
+          setTag(data.createTag);
+        }
+      });
     });
 
     setPendingCreate([]);
     setPendingDelete([]);
     setPendingUpdate([]);
   }
-
-  console.groupCollapsed('Data');
-  console.log('create:', pendingCreate);
-  console.log('delete:', pendingDelete);
-  console.log('update:', pendingUpdate);
-  console.log('tags:', JSON.stringify(tags, undefined, '  '));
-  console.groupEnd();
 
   function onAdd(tag: Tag) {
     setPendingCreate(
@@ -131,11 +140,21 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   }
 
   function onChange(tag: Tag) {
-    const pendingCreateOrUpdate = pendingCreate.includes(tag.id)
-      ? pendingCreate
-      : pendingUpdate;
+    if(pendingCreate.includes(tag.id)) {
+      setPendingCreate(
+        set(
+          pendingCreate, tag.id
+        )
+      );
+    }
+    else {
+      setPendingUpdate(
+        set(
+          pendingUpdate, tag.id
+        )
+      );
+    }
 
-    set(pendingCreateOrUpdate, tag.id);
     setTag(tag);
   }
 
@@ -146,16 +165,22 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     setPendingUpdate(
       remove(pendingUpdate, tag.id)
     );
-    setPendingDelete(
-      set(pendingDelete, tag.id)
-    );
-    deleteTag(tag);
+    if(isNaN(Number(tag.id))) {
+      setPendingDelete(
+        set(pendingDelete, tag.id)
+      );
+    }
+
+    delete tags[tag.id];
+    setTags({
+      ...tags
+    });
   }
 
   return (
     <div className="c_tag-list-edit">
       <header className="c_tag-list-edit__header">
-        <span>{category.parent.value}</span>
+        <span>{categoryName}</span>
         <button
           disabled={pendingCreate.length === 0 && pendingDelete.length === 0 && pendingUpdate.length === 0}
           onClick={onDone}
@@ -163,15 +188,15 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
       </header>
       <ul>
         {
-          Object.keys(tags).map(id => (
+          values(tags).map(tag => (
             <TagEdit
-              key={id}
+              key={tag.id}
               action="X"
               el="li"
-              tag={tags[id]}
-              onAction={() => onDelete(tags[id])}
+              tag={tag}
+              onAction={() => onDelete(tag)}
               onChange={value => onChange({
-                ...tags[id],
+                ...tag,
                 value
               })}
             />

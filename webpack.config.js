@@ -40,6 +40,8 @@ const config = {
           loader: 'babel-loader',
           options: {
           presets: [
+            // TODO: figure out how to get async / await working
+            // ['@babel/preset-env', { "useBuiltIns": "usage" }],
             '@babel/preset-env',
             '@babel/preset-react',
             '@babel/preset-typescript'
