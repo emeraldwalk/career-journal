@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { TagEdit } from '..';
-import { remove, set } from '../../util/array';
 import { Dict, pick, values } from '../../util/common';
 import { getCategory } from '../../util/tags';
 import { Tag } from '../../gql-schema';
 import { useCreateTag, useDeleteTag, useListTags, useUpdateTag } from '../../queries/hooks';
+import { usePending, useStateDict } from '../../util/hooks';
 
 export interface TagListEditProps {
   categoryId?: string
@@ -23,13 +23,16 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   const createTag = useCreateTag();
   const deleteTag = useDeleteTag();
   const updateTag = useUpdateTag();
-
-  const [pendingCreate, setPendingCreate] = useState([] as string[]);
-  const [pendingDelete, setPendingDelete] = useState([] as string[]);
-  const [pendingUpdate, setPendingUpdate] = useState([] as string[]);
+  const { pending, resetPending, setPending } = usePending();
   const [newTag, setNewTag] = useState<Tag>({ id: '-1', parentId: categoryId, value: '' });
   const [categoryName, setCategoryName] = useState('');
-  const [tags, setTags] = useState<Dict<Tag>>({});
+
+  const {
+    remove: removeTag,
+    set: setTag,
+    setAll: setTags,
+    state: tags,
+  } = useStateDict<Tag>({});
 
   useEffect(() => {
     if(data) {
@@ -55,6 +58,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   // }
   // tagsLog('items:', data && data.listTags.items);
   // tagsLog('tags:', values(tags));
+  // console.log(pending);
   // console.groupEnd();
 
   if(loading || !data) {
@@ -65,73 +69,73 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     return <div>Error</div>
   }
 
-  /** Set a tag in the tags dictionary. */
-  function setTag(tag: Tag) {
-    setTags({
-      ...tags,
-      [tag.id]: tag
-    });
-  }
-
   function onDone() {
-    pendingDelete.forEach(id => {
-      deleteTag({
-        variables: {
-          input: {
-            id: id,
-            parentId: categoryId
+    Object.keys(pending).forEach(id => {
+      switch(pending[id]) {
+        case 'CREATE':
+          createTag({
+            variables: {
+              input: pick(
+                tags[id],
+                'icon', 'parentId', 'value'
+              )
+            }
+          })
+          .then(({ data }) => {
+            if(data) {
+              delete tags[id];
+              setTag(
+                data.createTag.id,
+                data.createTag
+              );
+            }
+          });
+          break;
+
+        case 'DELETE':
+          if(isNaN(Number(id))) {
+            deleteTag({
+              variables: {
+                input: {
+                  id: id,
+                  parentId: categoryId
+                }
+              }
+            });
           }
-        }
-      });
+          removeTag(id);
+          break;
+
+        case 'UPDATE':
+          updateTag({
+            variables: {
+              input: pick(
+                tags[id],
+                'icon', 'id', 'parentId', 'value'
+              )
+            }
+          })
+          .then(({ data }) => {
+            if(data) {
+              setTag(
+                data.createTag.id,
+                data.createTag
+              );
+            }
+          });
+          break;
+
+        default:
+          throw `Unexpected pending state: '${pending[id]}'`;
+      }
     });
 
-    pendingCreate.forEach(id => {
-      createTag({
-        variables: {
-          input: pick(
-            tags[id],
-            'icon', 'parentId', 'value'
-          )
-        }
-      })
-      .then(({ data }) => {
-        if(data) {
-          delete tags[id];
-          setTag(data.createTag);
-        }
-      });
-    });
-
-    pendingUpdate.forEach(id => {
-      updateTag({
-        variables: {
-          input: pick(
-            tags[id],
-            'icon', 'id', 'parentId', 'value'
-          )
-        }
-      })
-      .then(({ data }) => {
-        if(data) {
-          setTag(data.createTag);
-        }
-      });
-    });
-
-    setPendingCreate([]);
-    setPendingDelete([]);
-    setPendingUpdate([]);
+    resetPending();
   }
 
   function onAdd(tag: Tag) {
-    setPendingCreate(
-      set(
-        pendingCreate,
-        tag.id
-      )
-    );
-
-    setTag(tag);
+    setPending(tag.id, 'CREATE');
+    setTag(tag.id, tag);
     setNewTag({
       ...tag,
       id: String(Number(tag.id) - 1),
@@ -140,41 +144,12 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   }
 
   function onChange(tag: Tag) {
-    if(pendingCreate.includes(tag.id)) {
-      setPendingCreate(
-        set(
-          pendingCreate, tag.id
-        )
-      );
-    }
-    else {
-      setPendingUpdate(
-        set(
-          pendingUpdate, tag.id
-        )
-      );
-    }
-
-    setTag(tag);
+    setPending(tag.id, 'UPDATE');
+    setTag(tag.id, tag);
   }
 
   function onDelete(tag: Tag) {
-    setPendingCreate(
-      remove(pendingCreate, tag.id)
-    );
-    setPendingUpdate(
-      remove(pendingUpdate, tag.id)
-    );
-    if(isNaN(Number(tag.id))) {
-      setPendingDelete(
-        set(pendingDelete, tag.id)
-      );
-    }
-
-    delete tags[tag.id];
-    setTags({
-      ...tags
-    });
+    setPending(tag.id, 'DELETE');
   }
 
   return (
@@ -182,13 +157,13 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
       <header className="c_tag-list-edit__header">
         <span>{categoryName}</span>
         <button
-          disabled={pendingCreate.length === 0 && pendingDelete.length === 0 && pendingUpdate.length === 0}
+          disabled={Object.keys(pending).length === 0}
           onClick={onDone}
         >Done</button>
       </header>
       <ul>
         {
-          values(tags).map(tag => (
+          values(tags).filter(tag => pending[tag.id] !== 'DELETE').map(tag => (
             <TagEdit
               key={tag.id}
               action="X"
