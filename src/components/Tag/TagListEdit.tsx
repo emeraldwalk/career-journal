@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { TagEdit } from '..';
-import { Dict, pick, values } from '../../util/common';
+import { Dict, isNewId, values } from '../../util/common';
 import { getCategory } from '../../util/tags';
 import { Tag } from '../../gql-schema';
-import { useCreateTag, useDeleteTag, useListTags, useUpdateTag } from '../../queries/hooks';
-import { usePending, useStateDict } from '../../util/hooks';
+import { useListTags, useTagMutations } from '../../queries/hooks';
+import { usePending } from '../../util/hooks';
 
 export interface TagListEditProps {
   categoryId?: string
@@ -19,20 +19,18 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   categoryId = '__ROOT__'
 }) => {
   const { data, error, loading } = useListTags();
-
-  const createTag = useCreateTag();
-  const deleteTag = useDeleteTag();
-  const updateTag = useUpdateTag();
+  const {
+    createTag,
+    deleteTag,
+    removeTag,
+    setTag,
+    setTags,
+    tags,
+    updateTag
+  } = useTagMutations();
   const { pending, resetPending, setPending } = usePending();
   const [newTag, setNewTag] = useState<Tag>({ id: '-1', parentId: categoryId, value: '' });
   const [categoryName, setCategoryName] = useState('');
-
-  const {
-    remove: removeTag,
-    set: setTag,
-    setAll: setTags,
-    state: tags,
-  } = useStateDict<Tag>({});
 
   useEffect(() => {
     if(data) {
@@ -73,56 +71,20 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     Object.keys(pending).forEach(id => {
       switch(pending[id]) {
         case 'CREATE':
-          createTag({
-            variables: {
-              input: pick(
-                tags[id],
-                'icon', 'parentId', 'value'
-              )
-            }
-          })
-          .then(({ data }) => {
-            if(data) {
-              delete tags[id];
-              setTag(
-                data.createTag.id,
-                data.createTag
-              );
-            }
-          });
+          createTag(tags[id]);
           break;
 
         case 'DELETE':
-          if(isNaN(Number(id))) {
+          if(!isNewId(id)) {
             deleteTag({
-              variables: {
-                input: {
-                  id: id,
-                  parentId: categoryId
-                }
-              }
+              id,
+              parentId: categoryId
             });
           }
-          removeTag(id);
           break;
 
         case 'UPDATE':
-          updateTag({
-            variables: {
-              input: pick(
-                tags[id],
-                'icon', 'id', 'parentId', 'value'
-              )
-            }
-          })
-          .then(({ data }) => {
-            if(data) {
-              setTag(
-                data.createTag.id,
-                data.createTag
-              );
-            }
-          });
+          updateTag(tags[id]);
           break;
 
         default:
@@ -150,6 +112,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
 
   function onDelete(tag: Tag) {
     setPending(tag.id, 'DELETE');
+    removeTag(tag.id);
   }
 
   return (
@@ -163,7 +126,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
       </header>
       <ul>
         {
-          values(tags).filter(tag => pending[tag.id] !== 'DELETE').map(tag => (
+          values(tags).map(tag => (
             <TagEdit
               key={tag.id}
               action="X"

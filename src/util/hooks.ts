@@ -19,6 +19,14 @@ export function usePending() {
       return;
     }
 
+    if(action === 'DELETE' && pending[id] === 'CREATE') {
+      delete pending[id];
+      setPendingInternal({
+        ...pending
+      });
+      return;
+    }
+
     setPendingInternal({
       ...pending,
       [id]: action

@@ -20,6 +20,13 @@ export function groupBy<T, K extends keyof T>(
 }
 
 /**
+ * Get whether this is a new id.
+ */
+export function isNewId(id: string) {
+  return /^-\d+$/.test(id);
+}
+
+/**
  * Factory for a predicate that compares a given value
  * against a value in an object.
  */
