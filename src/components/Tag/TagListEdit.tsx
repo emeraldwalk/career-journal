@@ -1,24 +1,29 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from '@reach/router';
 import { TagEdit } from '..';
 import { Dict, isNewId, values } from '../../util/common';
 import { getCategory } from '../../util/tags';
 import { Tag } from '../../gql-schema';
-import { useListTags, useTagMutations } from '../../queries/hooks';
+import { useTagMutations } from '../../queries/hooks';
 import { usePending } from '../../util/hooks';
 
 export interface TagListEditProps {
-  categoryId?: string
+  category: Tag,
+  onSave: () => void,
+  path: string,
+  tags: Dict<Tag>
 };
 
 export interface TagListEditState {
   category: ReturnType<typeof getCategory>,
-  dirty: Dict<Tag>
+  dirty: Dict<Tag>,
 }
 
 const TagListEdit: React.SFC<TagListEditProps> = ({
-  categoryId = '__ROOT__'
+  category,
+  onSave,
+  tags: tagsInit
 }) => {
-  const { data, error, loading } = useListTags();
   const {
     createTag,
     deleteTag,
@@ -29,19 +34,13 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     updateTag
   } = useTagMutations();
   const { pending, resetPending, setPending } = usePending();
-  const [newTag, setNewTag] = useState<Tag>({ id: '-1', parentId: categoryId, value: '' });
+  const [newTag, setNewTag] = useState<Tag>({ id: '-1', parentId: category.id, value: '' });
   const [categoryName, setCategoryName] = useState('');
 
   useEffect(() => {
-    if(data) {
-      const { parent, tags: tagsInit } = getCategory(
-        data.listTags.items,
-        categoryId
-      );
-      setCategoryName(parent.value);
-      setTags(tagsInit);
-    }
-  }, [data]);
+    setCategoryName(category.value);
+    setTags(tagsInit);
+  }, []);
 
   // console.groupCollapsed('Tags');
   // function tagLog(tag: Tag) {
@@ -59,33 +58,25 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   // console.log(pending);
   // console.groupEnd();
 
-  if(loading || !data) {
-    return <div>Loading...</div>;
-  }
-
-  if(error) {
-    return <div>Error</div>
-  }
-
   function onDone() {
-    Object.keys(pending).forEach(id => {
+    const mutations = Object.keys(pending).map(id => {
       switch(pending[id]) {
         case 'CREATE':
-          createTag(tags[id]);
-          break;
+          return createTag(tags[id]);
 
         case 'DELETE':
-          if(!isNewId(id)) {
-            deleteTag({
+          if(isNewId(id)) {
+            return Promise.resolve();
+          }
+          else {
+            return deleteTag({
               id,
-              parentId: categoryId
+              parentId: category.id
             });
           }
-          break;
 
         case 'UPDATE':
-          updateTag(tags[id]);
-          break;
+          return updateTag(tags[id]);
 
         default:
           throw `Unexpected pending state: '${pending[id]}'`;
@@ -93,6 +84,11 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     });
 
     resetPending();
+
+    Promise.all(
+      mutations
+    )
+    .then(() => onSave());
   }
 
   function onAdd(tag: Tag) {
@@ -119,6 +115,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     <div className="c_tag-list-edit">
       <header className="c_tag-list-edit__header">
         <span>{categoryName}</span>
+        <Link to={`..`}>Cancel</Link>
         <button
           disabled={Object.keys(pending).length === 0}
           onClick={onDone}

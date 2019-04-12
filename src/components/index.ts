@@ -1,2 +1,2 @@
 export { App } from './App';
-export { TagEdit, TagList, TagListEdit } from './Tag';
+export { TagEdit, TagList, TagListContainer, TagListEdit } from './Tag';

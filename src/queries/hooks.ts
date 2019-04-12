@@ -46,7 +46,7 @@ export function useListTags() {
     ListTagsData,
     ListTagsVariables
   >(LIST_TAGS_QUERY, {
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'cache-and-network'
   });
 }
 
@@ -78,7 +78,8 @@ export function useTagMutations() {
         )
       }
     })
-    .then(({ data }) => {
+    .then(result => {
+      const { data } = result;
       if(data) {
         // replace item with temporary id with new item
         removeTag(input.id);
@@ -87,6 +88,7 @@ export function useTagMutations() {
           data.createTag
         );
       }
+      return data;
     });
   }
 
@@ -107,13 +109,15 @@ export function useTagMutations() {
         )
       }
     })
-    .then(({ data }) => {
+    .then(result => {
+      const { data } = result;
       if(data) {
         setTag(
-          data.createTag.id,
-          data.createTag
+          data.updateTag.id,
+          data.updateTag
         );
       }
+      return result;
     });
   }
 

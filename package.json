@@ -11,7 +11,7 @@
     "build:schema": "graphql-schema-typescript generate-ts --typePrefix \"\" --output src/gql-schema.d.ts schema",
     "build": "webpack --config webpack.config.js",
     "deploy-cloud": "aws --region us-east-1 cloudformation create-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal",
-    "start": "webpack-dev-server --open",
+    "start": "webpack-dev-server --history-api-fallback --open",
     "update-cloud": "aws --region us-east-1 cloudformation update-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal"
   },
   "keywords": [],
@@ -23,6 +23,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
     "@types/node": "^11.11.7",
+    "@types/reach__router": "^1.2.4",
     "@types/react": "^16.8.8",
     "@types/react-dom": "^16.8.3",
     "babel-loader": "^8.0.5",
@@ -40,6 +41,7 @@
     "webpack-dev-server": "^3.2.1"
   },
   "dependencies": {
+    "@reach/router": "^1.2.1",
     "aws-appsync": "^1.7.2",
     "aws-appsync-react": "^1.2.7",
     "graphql-tag": "^2.10.1",

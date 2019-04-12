@@ -28,6 +28,9 @@ h3 { @extend %h3; }
     }
   }
 }
+.c_tag-list__link {
+  display: flex;
+}
 .c_tag-edit {
   display: flex;
   &__input {

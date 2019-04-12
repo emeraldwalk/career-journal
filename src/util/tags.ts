@@ -8,10 +8,10 @@ import { Tag } from "../gql-schema";
 export function getCategory(
   allTags: Tag[],
   categoryId: string
-) {
+): { parent: Tag, tags: Dict<Tag> } {
   const parent = allTags.find(
     tag => tag.id === categoryId
-  ) || { id: '__ROOT__', value: 'Categories' };
+  ) || { id: '__ROOT__', parentId: '', value: 'Categories' };
 
   const tags = groupBy(
     allTags,

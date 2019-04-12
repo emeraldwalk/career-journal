@@ -1,37 +1,39 @@
 import React from 'react';
-import { useQuery } from 'react-apollo-hooks';
-import { LIST_TAGS_QUERY, ListTagsData, ListTagsVariables } from '../../queries/list-tags';
-import { values } from '../../util/common';
-import { getCategory } from '../../util/tags';
+import { Link } from '@reach/router';
+import { values, Dict } from '../../util/common';
+import { Tag } from '../../gql-schema';
 
 export interface TagListProps {
-  categoryId?: string
+  category: Tag,
+  path: string,
+  tags: Dict<Tag>
 };
 
 const TagList: React.SFC<TagListProps> = ({
-  categoryId = '__ROOT__'
+  category,
+  tags
 }) => {
-  const { data, error, loading } = useQuery<ListTagsData, ListTagsVariables>(LIST_TAGS_QUERY);
-
-  if(loading || !data) {
-    return <div>Loading...</div>;
-  }
-
-  if(error) {
-    return <div>Error</div>
-  }
-
-  const { parent, tags } = getCategory(
-    data.listTags.items,
-    categoryId
-  )
-
   return (
     <div className="c_tag-list">
-      <header className="c_tag-list__header">{parent.value}</header>
+      <header className="c_tag-list__header">
+        <span>
+          {category.parentId && <span><Link to={`../${category.parentId}`}>Categories</Link> > </span>}
+          {category.value}
+        </span>
+        <Link to={`./edit`}>Edit</Link>
+      </header>
       <ul>
         {
-          values(tags).map(tag => <li key={tag.id}>{tag.value}</li>)
+          values(tags).map(tag => (
+            <li key={tag.id}>{
+              category.id === '__ROOT__'
+                ? <Link
+                    className="c_tag-list__link"
+                    to={`../${tag.id}`}
+                  >{tag.value}</Link>
+                : <span>{tag.value}</span>
+            }</li>
+          ))
         }
       </ul>
     </div>
