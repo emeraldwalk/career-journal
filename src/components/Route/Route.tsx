@@ -1,13 +1,32 @@
 import React from 'react';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, Match } from '@reach/router';
+import { Omit } from '../../util/common';
 
 /**
- * Props consist of a component, it's props,
- * and optional Reach router props.
+ * Reach router matching props.
  */
-export type RouteProps<T> = {
-  component: React.ComponentType<T>
-} & RouteComponentProps & T;
+interface MatchingProps {
+  default?: string,
+  path?: string
+}
+
+/**
+ * Reach router props passed to components implicitly.
+ */
+type RoutePropsImplicit = Omit<
+  RouteComponentProps,
+  keyof MatchingProps
+>;
+
+/**
+ * Route props consist of a component to render,
+ * its props (minus implicit props), and
+ * matching props.
+ */
+type RouteProps<T> =
+  { component: React.ComponentType<T> } &
+  MatchingProps &
+  Omit<T & RoutePropsImplicit, keyof RoutePropsImplicit>;
 
 /**
  * Wrapper component for @reach/router routes.
@@ -19,7 +38,7 @@ function Route<T>({
   component: Component,
   ...rest
 }: RouteProps<T>) {
-  return <Component {...rest as T & RouteComponentProps}/>
+  return <Component {...rest as unknown as T}/>
 }
 
 export default Route;

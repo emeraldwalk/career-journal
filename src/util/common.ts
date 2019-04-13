@@ -2,6 +2,8 @@ export interface Dict<T> {
   [key: string]: T
 }
 
+export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
+
 /**
  * Group items in an array by a given key.
  */
