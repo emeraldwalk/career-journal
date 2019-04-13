@@ -5,7 +5,6 @@ import { Tag } from '../../gql-schema';
 
 export interface TagListProps {
   category: Tag,
-  path: string,
   tags: Dict<Tag>
 };
 

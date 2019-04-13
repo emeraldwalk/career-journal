@@ -10,7 +10,6 @@ import { usePending } from '../../util/hooks';
 export interface TagListEditProps {
   category: Tag,
   onSave: () => void,
-  path: string,
   tags: Dict<Tag>
 };
 

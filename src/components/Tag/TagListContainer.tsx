@@ -1,13 +1,12 @@
 import React from 'react';
 import { Router } from '@reach/router';
-import { TagList, TagListEdit } from '..';
+import { Route, TagList, TagListEdit } from '..';
 import { getCategory } from '../../util/tags';
 import { useListTags } from '../../queries/hooks';
 
 export interface TagListContainerProps {
   categoryId?: string,
-  navigate: (path: string) => void,
-  path: string
+  navigate: (path: string) => void
 };
 
 const TagListContainer: React.SFC<TagListContainerProps> = ({
@@ -32,16 +31,18 @@ const TagListContainer: React.SFC<TagListContainerProps> = ({
   return (
     <div className="c_tag-list-container">
       <Router>
-        <TagList
+        <Route
+          component={TagList}
           category={parent}
           path="/"
           tags={tags}
           />
-        <TagListEdit
+        <Route
+          component={TagListEdit}
           category={parent}
           onSave={() => {
             refetch();
-            navigate('.');
+            navigate!('.');
           }}
           path="edit"
           tags={tags}
