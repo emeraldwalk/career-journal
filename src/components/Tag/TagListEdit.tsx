@@ -28,7 +28,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
     deleteTag,
     removeTag,
     setTag,
-    setTags,
+    setAllTags,
     tags,
     updateTag
   } = useTagMutations();
@@ -38,7 +38,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
 
   useEffect(() => {
     setCategoryName(category.value);
-    setTags(tagsInit);
+    setAllTags(tagsInit);
   }, []);
 
   // console.groupCollapsed('Tags');
@@ -65,7 +65,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
 
         case 'DELETE':
           if(isNewId(id)) {
-            return Promise.resolve();
+            return Promise.resolve(undefined);
           }
           else {
             return deleteTag({

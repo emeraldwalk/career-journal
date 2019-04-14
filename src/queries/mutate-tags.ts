@@ -13,7 +13,7 @@ export function useTagMutations() {
   const {
     remove: removeTag,
     set: setTag,
-    setAll: setTags,
+    setAll: setAllTags,
     state: tags,
   } = useStateDict<Tag>({});
 
@@ -74,7 +74,7 @@ export function useTagMutations() {
     deleteTag,
     removeTag,
     setTag,
-    setTags,
+    setAllTags,
     tags,
     updateTag
   };
