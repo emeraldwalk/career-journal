@@ -2,7 +2,7 @@ import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo-hooks';
 import { TagConnection } from '../gql-schema';
 import { TAG_FIELDS_FRAGMENT } from './fragments';
-import { FetchPolicy } from 'apollo-client/core/watchQueryOptions'
+import { FetchPolicy } from 'apollo-client'
 
 export interface ListTagsVariables {
 }
