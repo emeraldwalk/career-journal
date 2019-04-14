@@ -1,8 +1,8 @@
 import React from 'react';
 import { Router } from '@reach/router';
 import { Route, TagList, TagListEdit } from '..';
+import { useListTags } from '../../queries/list-tags';
 import { getCategory } from '../../util/tags';
-import { useListTags } from '../../queries/hooks';
 
 export interface TagListContainerProps {
   categoryId?: string,
@@ -13,7 +13,9 @@ const TagListContainer: React.SFC<TagListContainerProps> = ({
   categoryId = '__ROOT__',
   navigate
 }) => {
-  const { data, error, loading, refetch } = useListTags();
+  const { data, error, loading, refetch } = useListTags({
+    fetchPolicy: 'cache-and-network'
+  });
 
   if(!data) {
     return <div>Loading...</div>;
