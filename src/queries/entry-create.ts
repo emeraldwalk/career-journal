@@ -1,7 +1,9 @@
 import gql from "graphql-tag";
-import { CreateEntryInput, Entry } from "../gql-schema";
+import { CreateEntryInput, Entry } from "../types/gql-schema";
 import { ENTRY_FIELDS_FRAGMENT } from "./fragments";
 import { useMutation } from "react-apollo-hooks";
+import { Omit } from "../util/common";
+import { Block } from "../types/portable-text";
 
 export interface CreateEntryVariables {
   input: CreateEntryInput
@@ -26,10 +28,20 @@ export function useCreateEntry() {
     CreateEntryVariables
   >(CREATE_ENTRY_MUTATION);
 
-  return function createEntry(input: CreateEntryInput) {
+  return function createEntry(
+    {
+      content,
+      ...rest
+    }: Omit<CreateEntryInput, 'content'> & {
+      content: Block[]
+    }
+  ) {
     return doCreateEntry({
       variables: {
-        input
+        input: {
+          ...rest,
+          content: JSON.stringify(content)
+        }
       }
     })
   };

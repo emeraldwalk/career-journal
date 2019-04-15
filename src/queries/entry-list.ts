@@ -1,7 +1,7 @@
 import gql from "graphql-tag";
 import { FetchPolicy } from "apollo-client";
 import { useQuery } from "react-apollo-hooks";
-import { EntryConnection } from "../gql-schema";
+import { EntryConnection } from "../types/gql-schema";
 import { ENTRY_FIELDS_FRAGMENT } from "./fragments";
 
 export interface ListEntriesVariables {

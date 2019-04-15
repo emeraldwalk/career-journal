@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo-hooks';
-import { DeleteTagInput, Tag } from '../gql-schema';
+import { DeleteTagInput, Tag } from '../types/gql-schema';
 import { TAG_FIELDS_FRAGMENT } from './fragments';
 
 export interface DeleteTagVariables {

@@ -19,7 +19,7 @@ export interface Query {
 }
 
 export interface Entry {
-  blocks: Array<Block>;
+  content: AWSJSON;
   createdAt?: AWSDateTime;
   date: AWSDate;
   id: string;
@@ -28,19 +28,7 @@ export interface Entry {
   updatedAt?: AWSDateTime;
 }
 
-export interface Block {
-  spans: Array<Span>;
-}
-
-export interface Span {
-  content: string;
-  type: SpanType;
-}
-
-export enum SpanType {
-  image = 'image',
-  text = 'text'
-}
+export type AWSJSON = any;
 
 export type AWSDateTime = any;
 
@@ -115,21 +103,12 @@ export interface Mutation {
 }
 
 export interface CreateEntryInput {
-  blocks: Array<BlockInput>;
+  content: AWSJSON;
   createdAt?: AWSDateTime;
   date: AWSDate;
   tags: Array<string>;
   title: string;
   updatedAt?: AWSDateTime;
-}
-
-export interface BlockInput {
-  spans: Array<SpanInput>;
-}
-
-export interface SpanInput {
-  content: string;
-  type: SpanType;
 }
 
 export interface CreateTagInput {
@@ -214,8 +193,7 @@ export interface TableIntFilterInput {
 export interface Resolver {
   Query?: QueryTypeResolver;
   Entry?: EntryTypeResolver;
-  Block?: BlockTypeResolver;
-  Span?: SpanTypeResolver;
+  AWSJSON?: GraphQLScalarType;
   AWSDateTime?: GraphQLScalarType;
   AWSDate?: GraphQLScalarType;
   Tag?: TagTypeResolver;
@@ -265,7 +243,7 @@ export interface QueryToListTagsResolver<TParent = any, TResult = any> {
 }
 
 export interface EntryTypeResolver<TParent = any> {
-  blocks?: EntryToBlocksResolver<TParent>;
+  content?: EntryToContentResolver<TParent>;
   createdAt?: EntryToCreatedAtResolver<TParent>;
   date?: EntryToDateResolver<TParent>;
   id?: EntryToIdResolver<TParent>;
@@ -274,7 +252,7 @@ export interface EntryTypeResolver<TParent = any> {
   updatedAt?: EntryToUpdatedAtResolver<TParent>;
 }
 
-export interface EntryToBlocksResolver<TParent = any, TResult = any> {
+export interface EntryToContentResolver<TParent = any, TResult = any> {
   (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
 }
 
@@ -299,27 +277,6 @@ export interface EntryToTitleResolver<TParent = any, TResult = any> {
 }
 
 export interface EntryToUpdatedAtResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface BlockTypeResolver<TParent = any> {
-  spans?: BlockToSpansResolver<TParent>;
-}
-
-export interface BlockToSpansResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface SpanTypeResolver<TParent = any> {
-  content?: SpanToContentResolver<TParent>;
-  type?: SpanToTypeResolver<TParent>;
-}
-
-export interface SpanToContentResolver<TParent = any, TResult = any> {
-  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
-}
-
-export interface SpanToTypeResolver<TParent = any, TResult = any> {
   (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
 }
 

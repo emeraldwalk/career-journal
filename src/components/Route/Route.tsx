@@ -26,7 +26,8 @@ type RoutePropsImplicit = Omit<
 type RouteProps<T> =
   { component: React.ComponentType<T> } &
   MatchingProps &
-  Omit<T & RoutePropsImplicit, keyof RoutePropsImplicit>;
+  Partial<T>;
+  //Omit<T & RoutePropsImplicit, keyof RoutePropsImplicit>;
 
 /**
  * Wrapper component for @reach/router routes.

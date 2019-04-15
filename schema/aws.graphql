@@ -1,3 +1,4 @@
 scalar AWSDate
 scalar AWSDateTime
+scalar AWSJSON
 directive @aws_subscribe(mutations: [String!]!) on FIELD_DEFINITION

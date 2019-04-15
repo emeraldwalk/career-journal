@@ -2,11 +2,7 @@ import gql from 'graphql-tag';
 
 export const ENTRY_FIELDS_FRAGMENT = gql`
   fragment EntryFields on Entry {
-    blocks {
-      spans {
-        type
-      }
-    }
+    content
     createdAt
     date
     id

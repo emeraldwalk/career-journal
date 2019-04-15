@@ -9,15 +9,15 @@ const App: React.SFC<AppProps> = ({}) => (
   <div>
     <h1>Journal</h1>
     <Link to="/">Journal</Link>
-    <Link to="/tags/__ROOT__">Tags</Link>
+    <Link to="/tag/__ROOT__">Tags</Link>
     <Router>
       <Route
         component={EntryListContainer}
-        path="/"
+        path="/*"
         />
       <Route
         component={TagListContainer}
-        path="/tags/:categoryId/*"
+        path="/tag/:categoryId/*"
         />
     </Router>
   </div>

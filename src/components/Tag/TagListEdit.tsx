@@ -3,7 +3,7 @@ import { Link } from '@reach/router';
 import { TagEdit } from '..';
 import { Dict, isNewId, values } from '../../util/common';
 import { getCategory } from '../../util/tags';
-import { Tag } from '../../gql-schema';
+import { Tag } from '../../types/gql-schema';
 import { useTagMutations } from '../../queries/mutate-tags';
 import { usePending } from '../../util/hooks';
 

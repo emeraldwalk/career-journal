@@ -4,12 +4,8 @@
   subscription: Subscription
 }
 
-type Block {
-  spans: [Span!]!
-}
-
 type Entry {
-  blocks: [Block!]!
+  content: AWSJSON!
   createdAt: AWSDateTime
   date: AWSDate!
   id: ID!
@@ -39,11 +35,6 @@ type Query {
   listTags(filter: TableTagFilterInput, limit: Int, nextToken: String): TagConnection!
 }
 
-type Span {
-  content: String!
-  type: SpanType!
-}
-
 type Subscription {
   onCreateEntry(createdAt: AWSDateTime, date: AWSDate, id: ID, tags: [String!], title: String): Entry @aws_subscribe(mutations : ["createEntry"])
   onCreateTag(icon: String, id: ID, parentId: ID, value: String): Tag @aws_subscribe(mutations : ["createTag"])
@@ -65,17 +56,8 @@ type TagConnection {
   nextToken: String
 }
 
-enum SpanType {
-  image
-  text
-}
-
-input BlockInput {
-  spans: [SpanInput!]!
-}
-
 input CreateEntryInput {
-  blocks: [BlockInput!]!
+  content: AWSJSON!
   createdAt: AWSDateTime
   date: AWSDate!
   tags: [String!]!
@@ -96,11 +78,6 @@ input DeleteEntryInput {
 input DeleteTagInput {
   id: ID!
   parentId: ID!
-}
-
-input SpanInput {
-  content: String!
-  type: SpanType!
 }
 
 input TableBooleanFilterInput {

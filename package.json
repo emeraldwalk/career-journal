@@ -8,7 +8,7 @@
     "doc": "docs"
   },
   "scripts": {
-    "build:schema": "graphql-schema-typescript generate-ts --typePrefix \"\" --output src/gql-schema.ts schema",
+    "build:schema": "graphql-schema-typescript generate-ts --typePrefix \"\" --output src/types/gql-schema.d.ts schema",
     "build": "webpack --config webpack.config.js",
     "deploy-cloud": "aws --region us-east-1 cloudformation create-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal",
     "start": "webpack-dev-server --history-api-fallback --open",

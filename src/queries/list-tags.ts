@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { useQuery } from 'react-apollo-hooks';
-import { TagConnection } from '../gql-schema';
+import { TagConnection } from '../types/gql-schema';
 import { TAG_FIELDS_FRAGMENT } from './fragments';
 import { FetchPolicy } from 'apollo-client'
 

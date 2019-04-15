@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo-hooks';
-import { Tag, UpdateTagInput } from '../gql-schema';
+import { Tag, UpdateTagInput } from '../types/gql-schema';
 import { TAG_FIELDS_FRAGMENT } from './fragments';
 
 export interface UpdateTagVariables {

@@ -1,4 +1,4 @@
-import { CreateTagInput, DeleteTagInput, Tag, UpdateTagInput } from '../gql-schema';
+import { CreateTagInput, DeleteTagInput, Tag, UpdateTagInput } from '../types/gql-schema';
 import { pick } from '../util/common';
 import { useStateDict } from '../util/hooks';
 import { useCreateTag } from './create-tag';
