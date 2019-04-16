@@ -1,6 +1,5 @@
 import React from 'react';
-import { Router } from '@reach/router';
-import { Route, TagList, TagListEdit } from '..';
+import { Route, Router, TagList, TagListEdit } from '..';
 import { useListTags } from '../../queries/list-tags';
 import { getCategory } from '../../util/tags';
 

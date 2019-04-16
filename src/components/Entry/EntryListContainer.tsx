@@ -1,9 +1,9 @@
 import React from 'react';
-import { Router } from '@reach/router';
 import { EntryEdit, EntryList } from '.';
 import { useCreateEntry } from '../../queries/entry-create';
 import { useListEntries } from '../../queries/entry-list';
-import { Route } from '../Route';
+import { useUpdateEntry } from '../../queries/entry-update';
+import { Route, Router } from '..';
 
 export interface EntryListContainerProps {
 };
@@ -14,6 +14,7 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({}) => {
   });
 
   const createEntry = useCreateEntry();
+  const updateEntry = useUpdateEntry();
 
   if(!data) {
     return <div>Loading...</div>;
@@ -25,11 +26,11 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({}) => {
 
   return (
     <div className="c_entry-list-container">
-      Entries
       <Router>
         <Route
           component={EntryEdit}
           entries={data.listEntries.items}
+          onDone={updateEntry}
           path="/entry/:entryId"
           />
         <Route

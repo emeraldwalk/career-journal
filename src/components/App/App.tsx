@@ -1,12 +1,12 @@
 import React from 'react';
-import { Link, Router } from '@reach/router';
-import { EntryListContainer, Route, TagListContainer } from '..';
+import { Link } from '@reach/router';
+import { EntryListContainer, Route, Router, TagListContainer } from '..';
 
 export interface AppProps {
 };
 
 const App: React.SFC<AppProps> = ({}) => (
-  <div>
+  <div className="c_app">
     <h1>Journal</h1>
     <Link to="/">Journal</Link>
     <Link to="/tag/__ROOT__">Tags</Link>

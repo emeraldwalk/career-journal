@@ -18,6 +18,34 @@ h1 { @extend %h1; }
 h2 { @extend %h2; }
 h3 { @extend %h3; }
 
+.c_app {
+  height: 100vh;
+}
+.c_app,
+.c_entry-edit,
+.c_entry-list-container,
+.router {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.c_entry-edit {
+  display: flex;
+  flex-direction: column;
+
+  &__action {
+    padding: 10px;
+  }
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  &__content {
+    flex: 1 0;
+  }
+}
+
 .c_tag-list,
 .c_tag-list-edit {
   &__header {
@@ -41,3 +69,7 @@ h3 { @extend %h3; }
     flex: 0 0 24px;
   }
 }
+
+// .router {
+//   height: 100%;
+// }
