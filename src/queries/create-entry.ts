@@ -42,5 +42,8 @@ export function useCreateEntry() {
         }
       }
     })
+    .then<Entry>(({ data }) => {
+      return data!.createEntry;
+    });
   };
 }

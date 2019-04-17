@@ -6,9 +6,12 @@ import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
 
 export interface EntryListContainerProps {
+  navigate: (path: string) => void
 };
 
-const EntryListContainer: React.SFC<EntryListContainerProps> = ({}) => {
+const EntryListContainer: React.SFC<EntryListContainerProps> = ({
+  navigate
+}) => {
   const { data, error } = useListEntries({
     fetchPolicy: 'cache-and-network'
   });
@@ -24,18 +27,20 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({}) => {
     return <div>Error</div>
   }
 
+  const entries = data.listEntries.items;
+
   return (
     <div className="c_entry-list-container">
       <Router>
         <Route
           component={EntryEdit}
-          entries={data.listEntries.items}
+          entries={entries}
           onDone={updateEntry}
           path="/entry/:entryId"
           />
         <Route
           component={EntryList}
-          entries={data.listEntries.items}
+          entries={entries}
           onAdd={ () =>
             createEntry({
               content: [
@@ -45,7 +50,7 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({}) => {
                   children: [
                     {
                       _type: 'span',
-                      text: 'This is an entry.',
+                      text: null,
                       marks: []
                     }
                   ]
@@ -55,7 +60,10 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({}) => {
               tags: [],
               title: '[New Entry]'
             })
-            .then(console.log)
+            .then(entry => {
+              entries.push(entry);
+              navigate(`/entry/${entry.id}`);
+            })
           }
           path="/"
           />

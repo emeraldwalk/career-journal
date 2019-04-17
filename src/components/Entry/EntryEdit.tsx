@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { navigate } from '@reach/router';
 import { Entry } from '../../types/gql-schema';
 import { Block } from '../../types/portable-text';
 import { Extend } from '../../util/common';
+import { Link } from '@reach/router';
 
 function blocksToText(
   blocks: Block[]
@@ -95,9 +97,18 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
         value={blocksToText(entry.content)}>
       </textarea>
       <div className="c_entry-edit__actions">
+        <Link
+          className="c_entry-edit__action"
+          to="/"
+        >Cancel</Link>
         <button
           className="c_entry-edit__action"
-          onClick={() => onDone(entry)}
+          onClick={
+            () => {
+              onDone(entry);
+              navigate('/');
+            }
+          }
         >Done</button>
       </div>
     </div>
