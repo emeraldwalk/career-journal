@@ -2,6 +2,8 @@ import gql from "graphql-tag";
 import { Entry, UpdateEntryInput } from "../types/gql-schema";
 import { ENTRY_FIELDS_FRAGMENT } from "./fragments";
 import { useMutation } from "react-apollo-hooks";
+import { Extend, omit } from "../util/common";
+import { Block } from "../types/portable-text";
 
 export interface UpdateEntryVariables {
   input: UpdateEntryInput
@@ -27,11 +29,14 @@ export function useUpdateEntry() {
   >(UPDATE_ENTRY_MUTATION);
 
   return function updateEntry(
-    input: Entry
+    input: Extend<UpdateEntryInput, { __typename?: string, content: Block[] }>
   ) {
     doUpdateEntry({
       variables: {
-        input
+        input: {
+          ...omit(input, '__typename'),
+          content: JSON.stringify(input.content),
+        },
       }
     });
   }

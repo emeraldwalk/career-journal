@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Entry } from '../../types/gql-schema';
 import { Block } from '../../types/portable-text';
+import { Extend } from '../../util/common';
 
 function blocksToText(
   blocks: Block[]
@@ -8,10 +9,23 @@ function blocksToText(
   return blocks
     .map(block => block
       .children
-      .map(span => span.text)
+      .map(span => span.text == null ? '' : span.text)
       .join(' ')
     )
     .join('\n');
+}
+
+function parseEntry(
+  entries: Entry[],
+  entryId: string
+) {
+  const entry = entries.find(entry => entry.id === entryId);
+  if(entry) {
+    return {
+      ...entry,
+      content: JSON.parse(entry.content) as Block[]
+    };
+  }
 }
 
 function textToBlocks(
@@ -25,7 +39,7 @@ function textToBlocks(
         {
           _type: 'span',
           marks: [],
-          text: p
+          text: p === '' ? null : p
         }
       ],
       markDefs: []
@@ -35,7 +49,7 @@ function textToBlocks(
 export interface EntryEditProps {
   entries: Entry[],
   entryId: string,
-  onDone: (entry: Entry) => void
+  onDone: (entry: Extend<Entry, { content: Block[] }>) => void
 };
 
 const EntryEdit: React.SFC<EntryEditProps> = ({
@@ -43,19 +57,24 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
   entryId,
   onDone
 }) => {
-  const [entry, setEntry] = useState<Entry>();
+  const [entry, setEntry] = useState<Extend<Entry, { content: Block[] }>>();
 
   useEffect(() => {
-    setEntry(
-      entries.find(entry => entry.id === entryId)
+    const entry = parseEntry(
+      entries,
+      entryId
     );
+
+    if(entry) {
+      setEntry(
+        entry
+      );
+    }
   }, [entryId, entries]);
 
   if(!entry) {
     return null;
   }
-
-  const content: Block[] = JSON.parse(entry.content);
 
   return (
     <div className="c_entry-edit">
@@ -71,9 +90,9 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
         className="c_entry-edit__content"
         onChange={event => setEntry({
           ...entry,
-          content: JSON.stringify(textToBlocks(event.target.value))
+          content: textToBlocks(event.target.value)
         })}
-        value={blocksToText(content)}>
+        value={blocksToText(entry.content)}>
       </textarea>
       <div className="c_entry-edit__actions">
         <button

@@ -127,6 +127,7 @@ export interface DeleteTagInput {
 }
 
 export interface UpdateEntryInput {
+  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date: AWSDate;
   id: string;
@@ -390,6 +391,7 @@ export interface SubscriptionTypeResolver<TParent = any> {
 }
 
 export interface SubscriptionToOnCreateEntryArgs {
+  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date?: AWSDate;
   id?: string;
@@ -413,6 +415,7 @@ export interface SubscriptionToOnCreateTagResolver<TParent = any, TResult = any>
 }
 
 export interface SubscriptionToOnDeleteEntryArgs {
+  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date?: AWSDate;
   id?: string;
@@ -436,6 +439,7 @@ export interface SubscriptionToOnDeleteTagResolver<TParent = any, TResult = any>
 }
 
 export interface SubscriptionToOnUpdateEntryArgs {
+  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date?: AWSDate;
   id?: string;

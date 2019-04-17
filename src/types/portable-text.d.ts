@@ -18,5 +18,5 @@ export type MarkKey = string;
 export interface Span {
   _type: 'span',
   marks: MarkKey[],
-  text: string
+  text: string | null
 }
