@@ -1,5 +1,5 @@
 import { CreateTagInput, DeleteTagInput, Tag, UpdateTagInput } from '../types/gql-schema';
-import { pick } from '../util/common';
+import { Extend, pick, omit } from '../util/common';
 import { useStateDict } from '../util/hooks';
 import { useCreateTag } from './create-tag';
 import { useDeleteTag } from './delete-tag';
@@ -17,13 +17,10 @@ export function useTagMutations() {
     state: tags,
   } = useStateDict<Tag>({});
 
-  function createTag(input: CreateTagInput & { id: string }) {
+  function createTag(input: Extend<CreateTagInput, { id: string, __typename?: string }>) {
     return createTagInit({
       variables: {
-        input: pick(
-          input,
-          'icon', 'parentId', 'value'
-        )
+        input: omit(input, '__typename', 'id')
       }
     })
     .then(result => {

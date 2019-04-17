@@ -1,8 +1,8 @@
 import React from 'react';
 import { EntryEdit, EntryList } from '.';
-import { useCreateEntry } from '../../queries/entry-create';
-import { useListEntries } from '../../queries/entry-list';
-import { useUpdateEntry } from '../../queries/entry-update';
+import { useCreateEntry } from '../../queries/create-entry';
+import { useListEntries } from '../../queries/list-entry';
+import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
 
 export interface EntryListContainerProps {
