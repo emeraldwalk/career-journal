@@ -16,7 +16,7 @@ const TagListContainer: React.SFC<TagListContainerProps> = ({
     fetchPolicy: 'cache-and-network'
   });
 
-  if(!data) {
+  if(!data || !data.listTags) {
     return <div>Loading...</div>;
   }
 
@@ -45,7 +45,7 @@ const TagListContainer: React.SFC<TagListContainerProps> = ({
             refetch();
             navigate!('.');
           }}
-          path="edit"
+          path="/edit"
           tags={tags}
           />
       </Router>

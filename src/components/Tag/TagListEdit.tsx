@@ -84,7 +84,7 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
 
     resetPending();
 
-    Promise.all(
+    Promise.all<any>(
       mutations
     )
     .then(() => onSave());

@@ -2,6 +2,7 @@ import gql from 'graphql-tag';
 import { useMutation } from 'react-apollo-hooks';
 import { Tag, UpdateTagInput } from '../types/gql-schema';
 import { TAG_FIELDS_FRAGMENT } from './fragments';
+import { Extend, omit } from '../util/common';
 
 export interface UpdateTagVariables {
   input: UpdateTagInput
@@ -21,8 +22,18 @@ export const UPDATE_TAG_MUTATION = gql`
 `;
 
 export function useUpdateTag() {
-  return useMutation<
+  const doUpdateTag = useMutation<
     UpdateTagData,
     UpdateTagVariables
   >(UPDATE_TAG_MUTATION);
+
+  return function updateTag(
+    input: Extend<Tag, { __typename?: string }>
+  ) {
+    return doUpdateTag({
+      variables: {
+        input: omit(input, '__typename')
+      }
+    });
+  }
 }

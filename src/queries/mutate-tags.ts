@@ -18,42 +18,24 @@ export function useTagMutations() {
   } = useStateDict<Tag>({});
 
   function createTag(input: Extend<CreateTagInput, { id: string, __typename?: string }>) {
-    return createTagInit({
-      variables: {
-        input: omit(input, '__typename', 'id')
-      }
-    })
-    .then(result => {
-      const { data } = result;
-      if(data) {
-        // replace item with temporary id with new item
-        removeTag(input.id);
-        setTag(
-          data.createTag.id,
-          data.createTag
-        );
-      }
-      return data;
+    return createTagInit(omit(input, '__typename', 'id'))
+    .then(tag => {
+      // replace item with temporary id with new item
+      removeTag(input.id);
+      setTag(
+        tag.id,
+        tag
+      );
+      return tag;
     });
   }
 
   function deleteTag(input: DeleteTagInput) {
-    return deleteTagInit({
-      variables: {
-        input
-      }
-    });
+    return deleteTagInit(input);
   }
 
   function updateTag(input: UpdateTagInput) {
-    return updateTagInit({
-      variables: {
-        input: pick(
-          input,
-          'icon', 'id', 'parentId', 'value'
-        )
-      }
-    })
+    return updateTagInit(input)
     .then(result => {
       const { data } = result;
       if(data) {

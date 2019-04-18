@@ -31,7 +31,7 @@ export function useUpdateEntry() {
   return function updateEntry(
     input: Extend<UpdateEntryInput, { __typename?: string, content: Block[] }>
   ) {
-    doUpdateEntry({
+    return doUpdateEntry({
       variables: {
         input: {
           ...omit(input, '__typename'),

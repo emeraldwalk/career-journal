@@ -1,6 +1,5 @@
 import React from 'react';
-import { Link } from '@reach/router';
-import { EntryListContainer, Route, Router, TagListContainer } from '..';
+import { EntryListContainer, Nav, Route, Router, TagListContainer } from '..';
 
 export interface AppProps {
 };
@@ -8,8 +7,7 @@ export interface AppProps {
 const App: React.SFC<AppProps> = ({}) => (
   <div className="c_app">
     <h1>Journal</h1>
-    <Link to="/">Journal</Link>
-    <Link to="/tag/__ROOT__">Tags</Link>
+    <Nav/>
     <Router>
       <Route
         component={EntryListContainer}

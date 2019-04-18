@@ -21,8 +21,25 @@ export const DELETE_TAG_MUTATION = gql`
 `;
 
 export function useDeleteTag() {
-  return useMutation<
+  const doDeleteTag = useMutation<
     DeleteTagData,
     DeleteTagVariables
   >(DELETE_TAG_MUTATION);
+
+  return function deleteTag({
+    id,
+    parentId
+  }: { id: string, parentId: string }): Promise<Tag> {
+    return doDeleteTag({
+      variables: {
+        input: {
+          id,
+          parentId
+        }
+      }
+    })
+    .then<Tag>(({ data }) => {
+      return data!.deleteTag;
+    });
+  };
 }

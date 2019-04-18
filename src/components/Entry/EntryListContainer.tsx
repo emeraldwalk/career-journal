@@ -1,6 +1,7 @@
-import React from 'react';
-import { EntryEdit, EntryList } from '.';
+import React, { useState } from 'react';
+import { EntryEdit, EntryList, EntryListEdit } from '.';
 import { useCreateEntry } from '../../queries/create-entry';
+import { useDeleteEntry } from '../../queries/delete-entry';
 import { useListEntries } from '../../queries/list-entry';
 import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
@@ -12,14 +13,15 @@ export interface EntryListContainerProps {
 const EntryListContainer: React.SFC<EntryListContainerProps> = ({
   navigate
 }) => {
-  const { data, error } = useListEntries({
+  const { data, error, refetch } = useListEntries({
     fetchPolicy: 'cache-and-network'
   });
 
   const createEntry = useCreateEntry();
+  const deleteEntry = useDeleteEntry();
   const updateEntry = useUpdateEntry();
 
-  if(!data) {
+  if(!data || !data.listEntries) {
     return <div>Loading...</div>;
   }
 
@@ -28,6 +30,31 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
   }
 
   const entries = data.listEntries.items;
+
+  function onAdd() {
+    createEntry({
+      content: [
+        {
+          _type: 'block',
+          markDefs: [],
+          children: [
+            {
+              _type: 'span',
+              text: null,
+              marks: []
+            }
+          ]
+        }
+      ],
+      date: new Date().toISOString().substr(0, 10),
+      tags: [],
+      title: '[New Entry]'
+    })
+    .then(entry => {
+      refetch()
+        .then(() => navigate(`/entry/${entry.id}`));
+    });
+  }
 
   return (
     <div className="c_entry-list-container">
@@ -41,31 +68,22 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
         <Route
           component={EntryList}
           entries={entries}
-          onAdd={ () =>
-            createEntry({
-              content: [
-                {
-                  _type: 'block',
-                  markDefs: [],
-                  children: [
-                    {
-                      _type: 'span',
-                      text: null,
-                      marks: []
-                    }
-                  ]
-                }
-              ],
-              date: new Date().toISOString().substr(0, 10),
-              tags: [],
-              title: '[New Entry]'
-            })
-            .then(entry => {
-              entries.push(entry);
-              navigate(`/entry/${entry.id}`);
-            })
-          }
+          onAdd={onAdd}
           path="/"
+          />
+        <Route
+          component={EntryListEdit}
+          entries={entries}
+          onDelete={
+            (entryIds: string[]) => {
+              Promise.all(
+                entryIds.map(deleteEntry)
+              )
+              .then(() => refetch())
+              .then(() => navigate('/'));
+            }
+          }
+          path="/edit"
           />
       </Router>
     </div>

@@ -21,8 +21,21 @@ export const CREATE_TAG_MUTATION = gql`
 `;
 
 export function useCreateTag() {
-  return useMutation<
+  const doCreateTag = useMutation<
     CreateTagData,
     CreateTagVariables
   >(CREATE_TAG_MUTATION);
+
+  return function createTag(
+    tag: CreateTagInput
+  ) {
+    return doCreateTag({
+      variables: {
+        input: tag
+      }
+    })
+    .then<Tag>(({ data }) => {
+      return data!.createTag;
+    });
+  };
 }
