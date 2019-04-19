@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from '@reach/router';
-import { TagEdit } from '..';
 import { Dict, isNewId, values } from '../../util/common';
 import { getCategory } from '../../util/tags';
 import { Tag } from '../../types/gql-schema';
@@ -24,16 +23,13 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   tags: tagsInit
 }) => {
   const {
-    createTag,
     deleteTag,
-    removeTag,
     setTag,
     setAllTags,
     tags,
     updateTag
   } = useTagMutations();
-  const { pending, resetPending, setPending } = usePending();
-  const [newTag, setNewTag] = useState<Tag>({ id: '-1', parentId: category.id, value: '' });
+  const { pending, removePending, resetPending, setPending } = usePending();
   const [categoryName, setCategoryName] = useState('');
 
   useEffect(() => {
@@ -60,9 +56,6 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
   function onDone() {
     const mutations = Object.keys(pending).map(id => {
       switch(pending[id]) {
-        case 'CREATE':
-          return createTag(tags[id]);
-
         case 'DELETE':
           if(isNewId(id)) {
             return Promise.resolve(undefined);
@@ -77,37 +70,23 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
         case 'UPDATE':
           return updateTag(tags[id]);
 
+        // NOTE: 'CREATE' is now handled by TagList
+        case 'CREATE':
         default:
           throw `Unexpected pending state: '${pending[id]}'`;
       }
     });
 
-    resetPending();
-
     Promise.all<any>(
       mutations
     )
+    .then(() => resetPending())
     .then(() => onSave());
-  }
-
-  function onAdd(tag: Tag) {
-    setPending(tag.id, 'CREATE');
-    setTag(tag.id, tag);
-    setNewTag({
-      ...tag,
-      id: String(Number(tag.id) - 1),
-      value: ''
-    });
   }
 
   function onChange(tag: Tag) {
     setPending(tag.id, 'UPDATE');
     setTag(tag.id, tag);
-  }
-
-  function onDelete(tag: Tag) {
-    setPending(tag.id, 'DELETE');
-    removeTag(tag.id);
   }
 
   return (
@@ -116,39 +95,44 @@ const TagListEdit: React.SFC<TagListEditProps> = ({
         <span>{categoryName}</span>
         <Link to={`..`}>Cancel</Link>
         <button
-          disabled={Object.keys(pending).length === 0}
+          className="c_tag-list-edit__action"
+          disabled={Object.keys(pending).filter(key => pending[key] === 'UPDATE').length === 0}
           onClick={onDone}
         >Done</button>
       </header>
       <ul>
         {
           values(tags).map(tag => (
-            <TagEdit
-              key={tag.id}
-              action="X"
-              el="li"
-              tag={tag}
-              onAction={() => onDelete(tag)}
-              onChange={value => onChange({
-                ...tag,
-                value
-              })}
-            />
+            <li key={tag.id}>
+              <input
+                checked={pending[tag.id] === 'DELETE'}
+                onChange={event => {
+                  if(event.currentTarget.checked) {
+                    setPending(tag.id, 'DELETE');
+                  }
+                  else {
+                    removePending(tag.id);
+                  }
+                }}
+                type="checkbox"
+              />
+              <input
+                type="text"
+                onChange={({ currentTarget: { value } }) => onChange({
+                  ...tag,
+                  value
+                })}
+                value={tag.value}
+                />
+            </li>
           ))
         }
-        <TagEdit
-          action="+"
-          el="li"
-          tag={newTag}
-          onAction={() => onAdd(newTag)}
-          onChange={value => {
-            setNewTag({
-              ...newTag,
-              value
-            });
-          }}
-        />
       </ul>
+      <button
+        className="c_tag-list-edit__action"
+        disabled={Object.keys(pending).filter(key => pending[key] === 'DELETE').length === 0}
+        onClick={onDone}
+      >Delete</button>
     </div>
   );
 }

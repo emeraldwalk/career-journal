@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { EntryEdit, EntryList, EntryListEdit } from '.';
 import { useCreateEntry } from '../../queries/create-entry';
 import { useDeleteEntry } from '../../queries/delete-entry';
 import { useListEntries } from '../../queries/list-entry';
 import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
+import { newEntry } from '../../util/entry';
 
 export interface EntryListContainerProps {
   navigate: (path: string) => void
@@ -31,31 +32,6 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
 
   const entries = data.listEntries.items;
 
-  function onAdd() {
-    createEntry({
-      content: [
-        {
-          _type: 'block',
-          markDefs: [],
-          children: [
-            {
-              _type: 'span',
-              text: null,
-              marks: []
-            }
-          ]
-        }
-      ],
-      date: new Date().toISOString().substr(0, 10),
-      tags: [],
-      title: '[New Entry]'
-    })
-    .then(entry => {
-      refetch()
-        .then(() => navigate(`/entry/${entry.id}`));
-    });
-  }
-
   return (
     <div className="c_entry-list-container">
       <Router>
@@ -68,7 +44,15 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
         <Route
           component={EntryList}
           entries={entries}
-          onAdd={onAdd}
+          onAdd={() => {
+            createEntry(
+              newEntry()
+            )
+            .then(entry => {
+              refetch()
+                .then(() => navigate(`/entry/${entry.id}`));
+            });
+          }}
           path="/"
           />
         <Route

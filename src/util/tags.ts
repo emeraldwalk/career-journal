@@ -1,5 +1,5 @@
 import { groupBy, Dict } from "./common";
-import { Tag } from "../gql-schema";
+import { Tag } from "../types/gql-schema";
 
 /**
  * Build a category object containing a category tag with

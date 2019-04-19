@@ -4,7 +4,6 @@ import { ENTRY_FIELDS_FRAGMENT } from "./fragments";
 import { useMutation } from "react-apollo-hooks";
 import { Extend } from "../util/common";
 import { Block } from "../types/portable-text";
-import { LIST_ENTRIES_QUERY } from "./list-entry";
 
 export interface CreateEntryVariables {
   input: CreateEntryInput
@@ -36,9 +35,6 @@ export function useCreateEntry() {
     }: Extend<CreateEntryInput, { content: Block[] }>
   ): Promise<Entry> {
     return doCreateEntry({
-      // refetchQueries: [{
-      //   query: LIST_ENTRIES_QUERY
-      // }],
       variables: {
         input: {
           ...rest,

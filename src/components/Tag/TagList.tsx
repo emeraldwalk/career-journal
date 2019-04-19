@@ -1,17 +1,22 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from '@reach/router';
 import { values, Dict } from '../../util/common';
-import { Tag } from '../../gql-schema';
+import { Tag } from '../../types/gql-schema';
+import { TagEdit } from '.';
 
 export interface TagListProps {
   category: Tag,
-  tags: Dict<Tag>
+  onAdd: (value: string) => void
+  tags: Dict<Tag>,
 };
 
 const TagList: React.SFC<TagListProps> = ({
   category,
+  onAdd,
   tags
 }) => {
+  const [newTagValue, setNewTagValue] = useState<string>('');
+
   return (
     <div className="c_tag-list">
       <header className="c_tag-list__header">
@@ -34,6 +39,17 @@ const TagList: React.SFC<TagListProps> = ({
             }</li>
           ))
         }
+        <TagEdit
+          action="+"
+          actionEnabled={newTagValue.length > 0}
+          el="li"
+          onAction={() => {
+            onAdd(newTagValue);
+            setNewTagValue('');
+          }}
+          onChange={setNewTagValue}
+          value={newTagValue}
+        />
       </ul>
     </div>
   );

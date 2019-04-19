@@ -45,7 +45,7 @@ function textToBlocks(
         }
       ],
       markDefs: []
-    }));
+    } as Block));
 }
 
 export interface EntryEditProps {

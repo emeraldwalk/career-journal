@@ -12,6 +12,7 @@
     "build": "webpack --config webpack.config.js",
     "deploy-cloud": "aws --region us-east-1 cloudformation create-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal",
     "start": "webpack-dev-server --history-api-fallback --open",
+    "typecheck": "tsc -p . --noEmit",
     "update-cloud": "aws --region us-east-1 cloudformation update-stack --stack-name TestJournalStack --template-body file://deploy/cloud-formation.yaml --parameters ParameterKey=APIName,ParameterValue=TestJournal"
   },
   "keywords": [],

@@ -1,31 +1,34 @@
 import React from 'react';
-import { Tag } from '../../gql-schema';
+import { Tag } from '../../types/gql-schema';
 
 export interface TagEditProps {
   action: string,
+  actionEnabled: boolean,
   el: keyof JSX.IntrinsicElements
-  tag: Tag,
+  value: string,
   onAction: () => void,
   onChange: (value: string) => void
 };
 
 const TagEdit: React.SFC<TagEditProps> = ({
   action,
+  actionEnabled,
   el: El,
   onAction,
   onChange,
-  tag
+  value
 }) => (
   <El
     className="c_tag-edit">
     <button
       className="c_tag-edit__action"
+      disabled={!actionEnabled}
       onClick={onAction}
     >{action}</button>
     <input
       className="c_tag-edit__input"
       onChange={event => onChange(event.currentTarget.value)}
-      type="text" value={tag.value}
+      type="text" value={value}
       />
   </El>
 );

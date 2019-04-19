@@ -6,6 +6,15 @@ type PendingAction = 'CREATE' | 'DELETE' | 'UPDATE';
 export function usePending() {
   const [pending, setPendingInternal] = useState({} as Dict<PendingAction>);
 
+  function removePending(
+    id: string
+  ): void {
+    delete pending[id];
+    setPendingInternal({
+      ...pending
+    });
+  }
+
   function resetPending(): void {
     setPendingInternal({});
   }
@@ -20,10 +29,7 @@ export function usePending() {
     }
 
     if(action === 'DELETE' && pending[id] === 'CREATE') {
-      delete pending[id];
-      setPendingInternal({
-        ...pending
-      });
+      removePending(id);
       return;
     }
 
@@ -35,6 +41,7 @@ export function usePending() {
 
   return {
     pending,
+    removePending,
     resetPending,
     setPending
   };

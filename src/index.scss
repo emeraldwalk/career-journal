@@ -75,11 +75,6 @@ h3 { @extend %h3; }
     justify-content: flex-end;
   }
 }
-.c_tag-list{
-  &__link {
-    display: flex;
-  }
-}
 .c_tag-edit {
   display: flex;
   &__input {
@@ -88,5 +83,15 @@ h3 { @extend %h3; }
   }
   &__action {
     flex: 0 0 24px;
+  }
+}
+.c_tag-list {
+  &__link {
+    display: flex;
+  }
+}
+.c_tag-list-edit {
+  &__action {
+    padding: 10px;
   }
 }
