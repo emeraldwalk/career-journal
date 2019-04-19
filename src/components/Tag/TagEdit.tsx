@@ -1,5 +1,4 @@
 import React from 'react';
-import { Tag } from '../../types/gql-schema';
 
 export interface TagEditProps {
   action: string,
