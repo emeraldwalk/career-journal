@@ -21,6 +21,16 @@ export type Extend<T, U> = {
 export type Omit<T, K extends keyof T> = Pick<T, Exclude<keyof T, K>>;
 
 /**
+ * Extract the 2 digit day from an ISO string.
+ */
+export function dayStr(
+  dateStr: string
+): string {
+  const [, day = ''] = dateStr.match(/^\d{4}-\d{2}-(\d{2})/) || [];
+  return day;
+}
+
+/**
  * Group items in an array by a given key.
  */
 export function groupBy<T, K extends keyof T>(

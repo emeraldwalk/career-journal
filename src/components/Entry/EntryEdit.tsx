@@ -80,6 +80,7 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
 
   return (
     <div className="c_entry-edit">
+      {entry.date.substr(5)}
       <input
         onChange={event => setEntry({
           ...entry,

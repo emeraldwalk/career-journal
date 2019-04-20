@@ -66,6 +66,11 @@ h3 { @extend %h3; }
     }
   }
 }
+.c_entry-list {
+  &__action {
+    padding: 10px;
+  }
+}
 .c_entry-list-edit {
   &__action {
     padding: 10px;
