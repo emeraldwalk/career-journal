@@ -1,6 +1,11 @@
 import { groupBy, Dict } from "./common";
 import { Tag } from "../types/gql-schema";
 
+export interface TagCategory {
+  parent: Tag,
+  tags: Dict<Tag>
+}
+
 /**
  * Build a category object containing a category tag with
  * it's child tags.
@@ -8,7 +13,7 @@ import { Tag } from "../types/gql-schema";
 export function getCategory(
   allTags: Tag[],
   categoryId: string
-): { parent: Tag, tags: Dict<Tag> } {
+): TagCategory {
   const parent = allTags.find(
     tag => tag.id === categoryId
   ) || { id: '__ROOT__', parentId: '', value: 'Categories' };

@@ -6,6 +6,9 @@ import { useListEntries } from '../../queries/list-entry';
 import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
 import { newEntry } from '../../util/entry';
+import { useListTags } from '../../queries/list-tags';
+import { useListAll } from '../../queries/list-all';
+import { getCategory } from '../../util/tags';
 
 export interface EntryListContainerProps {
   navigate: (path: string) => void
@@ -14,7 +17,11 @@ export interface EntryListContainerProps {
 const EntryListContainer: React.SFC<EntryListContainerProps> = ({
   navigate
 }) => {
-  const { data, error, refetch } = useListEntries({
+  const { data, error, refetch } = useListAll({
+    fetchPolicy: 'cache-and-network'
+  });
+
+  const { data: tagData } = useListTags({
     fetchPolicy: 'cache-and-network'
   });
 
@@ -22,7 +29,7 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
   const deleteEntry = useDeleteEntry();
   const updateEntry = useUpdateEntry();
 
-  if(!data || !data.listEntries) {
+  if(!data || !data.listEntries || !data.listTags) {
     return <div>Loading...</div>;
   }
 
@@ -32,10 +39,16 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
 
   const entries = data.listEntries.items;
 
+  const categoryNames = ['Location', 'Project'];
+  const categories = data.listTags.items
+    .filter(tag => categoryNames.indexOf(tag.value) > -1)
+    .map(tag => getCategory(data.listTags.items, tag.id));
+
   return (
     <div className="c_entry-list-container">
       <Router>
         <Route
+          categories={categories}
           component={EntryEdit}
           entries={entries}
           onDone={updateEntry}
