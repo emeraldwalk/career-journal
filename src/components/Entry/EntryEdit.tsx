@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { navigate } from '@reach/router';
-import { Entry } from '../../types/gql-schema';
+import { Entry, Tag } from '../../types/gql-schema';
 import { Block } from '../../types/portable-text';
 import { Extend } from '../../util/common';
 import { Link } from '@reach/router';
 import { TagSelector } from '../Tag';
-import { TagCategory } from '../../util/tags';
+import { TagCategory, getCategory } from '../../util/tags';
 
 export interface EntryEditProps {
-  categories: TagCategory[],
+  allTags: Tag[],
   entries: Entry[],
   entryId: string,
   onDone: (entry: Extend<Entry, { content: Block[] }>) => void
 };
 
 const EntryEdit: React.SFC<EntryEditProps> = ({
-  categories,
+  allTags,
   entries,
   entryId,
   onDone
 }) => {
   const [entry, setEntry] = useState<Extend<Entry, { content: Block[] }>>();
+  const [entryTags, setEntryTags] = useState<Tag[]>([]);
 
   useEffect(() => {
     const entry = parseEntry(
@@ -32,12 +33,24 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
       setEntry(
         entry
       );
+
+      setEntryTags(
+        entry.tags
+          .map(tagId => allTags.find(tag => tag.id === tagId))
+          .filter((tag): tag is Tag => !!tag)
+          .sort((a, b) => a.value.localeCompare(b.value))
+      );
     }
   }, [entryId, entries]);
 
   if(!entry) {
     return null;
   }
+
+  const categoryNames = ['Location', 'Project'];
+  const categories = allTags
+    .filter(tag => categoryNames.indexOf(tag.value) > -1)
+    .map(tag => getCategory(allTags, tag.id));
 
   return (
     <div className="c_entry-edit">
@@ -58,6 +71,11 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
         })}
         value={blocksToText(entry.content)}>
       </textarea>
+      <div className="c_entry-edit__tag-list">
+        {entryTags.map(tag =>
+          <span key={tag.id} className="c_entry-edit__tag">{tag.value}</span>
+        )}
+      </div>
       <div className="c_entry-edit__tag-selectors">
         <div className="c_entry-edit__tag-selector-labels">
           {
@@ -71,10 +89,11 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
             categories.map(({ parent, tags }) => (
               <TagSelector
                 key={parent.id}
-                onChange={value => setEntry(
-                  updateTags(entry, value, { parent, tags })
-                )}
-                selected={getSelectedCategory(entry, { parent, tags })}
+                onChange={value =>
+                  setEntryTags(
+                    updateTags(entryTags, value, { parent, tags })
+                  )}
+                selected={getSelectedCategory(entryTags, { parent, tags }).id}
                 tags={Object.keys(tags).map(id => tags[id])}
               />
             ))
@@ -90,7 +109,10 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
           className="c_entry-edit__action"
           onClick={
             () => {
-              onDone(entry);
+              onDone({
+                ...entry,
+                tags: entryTags.map(tag => tag.id)
+              });
               navigate('/');
             }
           }
@@ -115,10 +137,10 @@ function blocksToText(
 }
 
 function getSelectedCategory(
-  entry: Entry,
+  entryTags: Tag[],
   { tags }: TagCategory
-): string {
-  return entry.tags.filter(id => Object.keys(tags).indexOf(id) > -1)[0];
+): Tag {
+  return entryTags.filter(tag => Object.keys(tags).indexOf(tag.id) > -1)[0];
 }
 
 function parseEntry(
@@ -135,34 +157,27 @@ function parseEntry(
 }
 
 function updateTags(
-  entry: Entry,
+  entryTags: Tag[],
   id: string,
   category: TagCategory
-): Entry {
-  if(!id) {
-    const selectedId = getSelectedCategory(
-      entry,
-      category
-    );
-    const i = entry.tags.indexOf(selectedId);
-    if(i > -1) {
-      return {
-        ...entry,
-        tags: [
-          ...entry.tags.slice(0, i),
-          ...entry.tags.slice(i + 1)
-        ]
-      };
-    }
-  }
-  else if(entry.tags.indexOf(id) < 0) {
-    return {
-      ...entry,
-      tags: [...entry.tags, id]
-    }
-  }
+): Tag[] {
+  const selectedTag = getSelectedCategory(
+    entryTags,
+    category
+  );
 
-  return entry
+  const i = entryTags.indexOf(selectedTag);
+  const tag = category.tags[id];
+
+  const result = [
+    ...entryTags.slice(0, i),
+    ...entryTags.slice(i + 1),
+    ...(tag ? [tag] : [])
+  ];
+
+  result.sort((a, b) => a.value.localeCompare(b.value));
+
+  return result;
 }
 
 function textToBlocks(

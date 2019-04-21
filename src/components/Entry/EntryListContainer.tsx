@@ -2,13 +2,11 @@ import React from 'react';
 import { EntryEdit, EntryList, EntryListEdit } from '.';
 import { useCreateEntry } from '../../queries/create-entry';
 import { useDeleteEntry } from '../../queries/delete-entry';
-import { useListEntries } from '../../queries/list-entry';
 import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
 import { newEntry } from '../../util/entry';
 import { useListTags } from '../../queries/list-tags';
 import { useListAll } from '../../queries/list-all';
-import { getCategory } from '../../util/tags';
 
 export interface EntryListContainerProps {
   navigate: (path: string) => void
@@ -39,16 +37,11 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
 
   const entries = data.listEntries.items;
 
-  const categoryNames = ['Location', 'Project'];
-  const categories = data.listTags.items
-    .filter(tag => categoryNames.indexOf(tag.value) > -1)
-    .map(tag => getCategory(data.listTags.items, tag.id));
-
   return (
     <div className="c_entry-list-container">
       <Router>
         <Route
-          categories={categories}
+          allTags={data.listTags.items}
           component={EntryEdit}
           entries={entries}
           onDone={updateEntry}
