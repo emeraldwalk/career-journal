@@ -1,8 +1,8 @@
 import React from 'react';
 import { Route, Router, TagList, TagListEdit } from '..';
 import { useListTags } from '../../queries/list-tags';
-import { getCategory } from '../../util/tags';
 import { useCreateTag } from '../../queries/create-tag';
+import { filterDict, toDict } from '../../util/common';
 
 export interface TagListContainerProps {
   categoryId?: string,
@@ -27,10 +27,9 @@ const TagListContainer: React.SFC<TagListContainerProps> = ({
     return <div>Error</div>
   }
 
-  const { parent, tags } = getCategory(
-    data.listTags.items,
-    categoryId
-  );
+  const allTags = toDict(data.listTags.items, 'id');
+  const parent = allTags[categoryId] || { id: '__ROOT__', parentId: '', value: 'Categories' };
+  const tags = filterDict(allTags, tag => tag.parentId === categoryId);
 
   return (
     <div className="c_tag-list-container">

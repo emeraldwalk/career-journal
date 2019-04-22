@@ -5,7 +5,6 @@ import { Block } from '../../types/portable-text';
 import { Dict, Extend, findInDict } from '../../util/common';
 import { Link } from '@reach/router';
 import { TagSelector } from '../Tag';
-import { TagCategory, getCategory } from '../../util/tags';
 
 export interface EntryEditProps {
   allTags: Dict<Tag>,

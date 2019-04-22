@@ -44,6 +44,25 @@ export function findInDict<T>(
 }
 
 /**
+ * Filter a dictionary based on a given predicate.
+ */
+export function filterDict<T>(
+  dict: Dict<T>,
+  predicate: (value: T, key: string) => boolean,
+): Dict<T> {
+  const keys = Object.keys(dict).filter(
+    key => predicate(dict[key], key)
+  );
+
+  return keys.reduce((memo, key) => {
+    return {
+      ...memo,
+      [key]: dict[key]
+    };
+  }, {});
+}
+
+/**
  * Group items in an array by a given key.
  */
 export function groupBy<T, K extends keyof T>(
@@ -115,6 +134,22 @@ export function pick<T, K extends keyof T>(
       [key]: t[key]
     };
   }, {} as Pick<T, K>);
+}
+
+/**
+ * Reduce and array to a Dict keyed on a given
+ * property for each item.
+ */
+export function toDict<T, K extends keyof T>(
+  array: T[],
+  key: K
+): Dict<T> {
+  return array.reduce((memo, tag) => {
+    return {
+      ...memo,
+      [String(tag[key])]: tag
+    }
+  }, {});
 }
 
 /**

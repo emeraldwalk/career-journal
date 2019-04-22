@@ -6,6 +6,7 @@ import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
 import { newEntry } from '../../util/entry';
 import { useListAll } from '../../queries/list-all';
+import { toDict } from '../../util/common';
 
 const CATEGORY_IDS = [
   '3680664b-2f99-45e1-aa9d-efbf0e94ee03', // Location
@@ -35,13 +36,8 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
     return <div>Error</div>
   }
 
+  const allTags = toDict(data.listTags.items, 'id');
   const entries = data.listEntries.items;
-  const allTags = data.listTags.items.reduce((memo, tag) => {
-    return {
-      ...memo,
-      [tag.id]: tag
-    }
-  }, {});
 
   return (
     <div className="c_entry-list-container">
