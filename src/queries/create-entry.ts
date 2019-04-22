@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
-import { CreateEntryInput, Entry, EntryConnection } from "../types/gql-schema";
+import { CreateEntryInput, Entry } from "../types/gql-schema";
 import { ENTRY_FIELDS_FRAGMENT } from "./fragments";
 import { useMutation } from "react-apollo-hooks";
-import { Extend } from "../util/common";
+import { Extend, Dict } from "../util/common";
 import { Block } from "../types/portable-text";
 
 export interface CreateEntryVariables {
@@ -30,14 +30,16 @@ export function useCreateEntry() {
 
   return function createEntry(
     {
+      categoryTags,
       content,
       ...rest
-    }: Extend<CreateEntryInput, { content: Block[] }>
+    }: Extend<CreateEntryInput, { categoryTags: Dict<string>, content: Block[] }>
   ): Promise<Entry> {
     return doCreateEntry({
       variables: {
         input: {
           ...rest,
+          categoryTags: JSON.stringify(categoryTags),
           content: JSON.stringify(content)
         }
       }

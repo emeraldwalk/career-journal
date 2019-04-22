@@ -2,25 +2,28 @@ import React, { useEffect, useState } from 'react';
 import { navigate } from '@reach/router';
 import { Entry, Tag } from '../../types/gql-schema';
 import { Block } from '../../types/portable-text';
-import { Extend } from '../../util/common';
+import { Dict, Extend, findInDict } from '../../util/common';
 import { Link } from '@reach/router';
 import { TagSelector } from '../Tag';
 import { TagCategory, getCategory } from '../../util/tags';
 
 export interface EntryEditProps {
-  allTags: Tag[],
+  allTags: Dict<Tag>,
+  categoryTagIds: string[],
   entries: Entry[],
   entryId: string,
-  onDone: (entry: Extend<Entry, { content: Block[] }>) => void
+  onDone: (entry: Extend<Entry, { categoryTags: Dict<string>, content: Block[] }>) => void
 };
 
 const EntryEdit: React.SFC<EntryEditProps> = ({
   allTags,
+  categoryTagIds,
   entries,
   entryId,
   onDone
 }) => {
   const [entry, setEntry] = useState<Extend<Entry, { content: Block[] }>>();
+  const [entryCategories, setEntryCategories] = useState<Dict<Tag>>({});
   const [entryTags, setEntryTags] = useState<Tag[]>([]);
 
   useEffect(() => {
@@ -34,9 +37,19 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
         entry
       );
 
+      setEntryCategories(
+        Object.keys(entry.categoryTags).reduce((memo, categoryKey) => {
+          const tagKey = entry.categoryTags[categoryKey];
+          return {
+            ...memo,
+            [categoryKey]: allTags[tagKey]
+          };
+        }, {})
+      );
+
       setEntryTags(
         entry.tags
-          .map(tagId => allTags.find(tag => tag.id === tagId))
+          .map(tagId => allTags[tagId])
           .filter((tag): tag is Tag => !!tag)
           .sort((a, b) => a.value.localeCompare(b.value))
       );
@@ -47,10 +60,12 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
     return null;
   }
 
-  const categoryNames = ['Location', 'Project'];
-  const categories = allTags
-    .filter(tag => categoryNames.indexOf(tag.value) > -1)
-    .map(tag => getCategory(allTags, tag.id));
+  // const categoryNames = ['Location', 'Project'];
+  // const categories = allTags
+  //   .filter(tag => categoryNames.indexOf(tag.value) > -1)
+  //   .map(tag => getCategory(allTags, tag.id));
+
+  const categoryTags = categoryTagIds.map(id => allTags[id]);
 
   return (
     <div className="c_entry-edit">
@@ -79,22 +94,34 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
       <div className="c_entry-edit__tag-selectors">
         <div className="c_entry-edit__tag-selector-labels">
           {
-            categories.map(({ parent }) => (
-              <span key={parent.id}>{parent.value}</span>
+            categoryTags.map(category => (
+              <span key={category.id}>{category.value}</span>
             ))
           }
         </div>
         <div className="c_entry-edit__tag-selector-inputs">
           {
-            categories.map(({ parent, tags }) => (
+            categoryTags.map(category => (
               <TagSelector
-                key={parent.id}
-                onChange={value =>
+                key={category.id}
+                onChange={value => {
+                  const addTag = allTags[value];
+
                   setEntryTags(
-                    updateTags(entryTags, value, { parent, tags })
-                  )}
-                selected={getSelectedCategory(entryTags, { parent, tags }).id}
-                tags={Object.keys(tags).map(id => tags[id])}
+                    updateTags(
+                      entryTags,
+                      addTag,
+                      entryCategories[category.id],
+                    )
+                  );
+
+                  setEntryCategories({
+                    ...entryCategories,
+                    [category.id]: addTag
+                  })
+                }}
+                selected={(entryCategories[category.id] || {}).id}
+                tags={findInDict(allTags, tag => tag.parentId === category.id)}
               />
             ))
           }
@@ -111,6 +138,12 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
             () => {
               onDone({
                 ...entry,
+                categoryTags: Object.keys(entryCategories).reduce((memo, categoryKey) => {
+                  return {
+                    ...memo,
+                    [categoryKey]: entryCategories[categoryKey].id
+                  }
+                }, {}),
                 tags: entryTags.map(tag => tag.id)
               });
               navigate('/');
@@ -136,13 +169,6 @@ function blocksToText(
     .join('\n');
 }
 
-function getSelectedCategory(
-  entryTags: Tag[],
-  { tags }: TagCategory
-): Tag {
-  return entryTags.filter(tag => Object.keys(tags).indexOf(tag.id) > -1)[0];
-}
-
 function parseEntry(
   entries: Entry[],
   entryId: string
@@ -151,6 +177,7 @@ function parseEntry(
   if(entry) {
     return {
       ...entry,
+      categoryTags: JSON.parse(entry.categoryTags) as Dict<string>,
       content: JSON.parse(entry.content) as Block[]
     };
   }
@@ -158,26 +185,34 @@ function parseEntry(
 
 function updateTags(
   entryTags: Tag[],
-  id: string,
-  category: TagCategory
+  add?: Tag,
+  remove?: Tag,
 ): Tag[] {
-  const selectedTag = getSelectedCategory(
-    entryTags,
-    category
-  );
+  entryTags = entryTags.slice(0);
 
-  const i = entryTags.indexOf(selectedTag);
-  const tag = category.tags[id];
+  if(remove) {
+    const i = entryTags.findIndex(tag => tag.id === remove.id);
+    if(i > -1) {
+      entryTags = [
+        ...entryTags.slice(0, i),
+        ...entryTags.slice(i + 1),
+      ];
+    }
+  }
 
-  const result = [
-    ...entryTags.slice(0, i),
-    ...entryTags.slice(i + 1),
-    ...(tag ? [tag] : [])
-  ];
+  if(add) {
+    const i = entryTags.findIndex(tag => tag.id === add.id);
+    if(i < 0) {
+      entryTags = [
+        ...entryTags,
+        add
+      ];
+    }
+  }
 
-  result.sort((a, b) => a.value.localeCompare(b.value));
+  entryTags.sort((a, b) => a.value.localeCompare(b.value));
 
-  return result;
+  return entryTags;
 }
 
 function textToBlocks(

@@ -31,6 +31,19 @@ export function dayStr(
 }
 
 /**
+ * Find all items in a dict matching a given predicate.
+ */
+export function findInDict<T>(
+  dict: Dict<T>,
+  predicate: (t: T) => boolean
+): T[] {
+  return Object
+    .keys(dict)
+    .map(key => dict[key])
+    .filter(predicate);
+}
+
+/**
  * Group items in an array by a given key.
  */
 export function groupBy<T, K extends keyof T>(

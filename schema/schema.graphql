@@ -1,4 +1,5 @@
 ﻿input CreateEntryInput {
+	categoryTags: AWSJSON!
 	content: AWSJSON!
 	createdAt: AWSDateTime
 	date: AWSDate!
@@ -23,6 +24,7 @@ input DeleteTagInput {
 }
 
 type Entry {
+	categoryTags: AWSJSON!
 	content: AWSJSON!
 	createdAt: AWSDateTime
 	date: AWSDate!
@@ -185,6 +187,7 @@ type TagConnection {
 }
 
 input UpdateEntryInput {
+	categoryTags: AWSJSON
   content: AWSJSON,
 	createdAt: AWSDateTime
 	date: AWSDate!

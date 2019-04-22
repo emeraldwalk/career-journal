@@ -5,8 +5,12 @@ import { useDeleteEntry } from '../../queries/delete-entry';
 import { useUpdateEntry } from '../../queries/update-entry';
 import { Route, Router } from '..';
 import { newEntry } from '../../util/entry';
-import { useListTags } from '../../queries/list-tags';
 import { useListAll } from '../../queries/list-all';
+
+const CATEGORY_IDS = [
+  '3680664b-2f99-45e1-aa9d-efbf0e94ee03', // Location
+  'f933ada5-bc83-40e3-95d6-3ae8c07dc42a', // Project
+]
 
 export interface EntryListContainerProps {
   navigate: (path: string) => void
@@ -16,10 +20,6 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
   navigate
 }) => {
   const { data, error, refetch } = useListAll({
-    fetchPolicy: 'cache-and-network'
-  });
-
-  const { data: tagData } = useListTags({
     fetchPolicy: 'cache-and-network'
   });
 
@@ -36,12 +36,19 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
   }
 
   const entries = data.listEntries.items;
+  const allTags = data.listTags.items.reduce((memo, tag) => {
+    return {
+      ...memo,
+      [tag.id]: tag
+    }
+  }, {});
 
   return (
     <div className="c_entry-list-container">
       <Router>
         <Route
-          allTags={data.listTags.items}
+          allTags={allTags}
+          categoryTagIds={CATEGORY_IDS}
           component={EntryEdit}
           entries={entries}
           onDone={updateEntry}

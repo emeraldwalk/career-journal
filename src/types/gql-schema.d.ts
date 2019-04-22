@@ -19,6 +19,7 @@ export interface Query {
 }
 
 export interface Entry {
+  categoryTags?: AWSJSON;
   content: AWSJSON;
   createdAt?: AWSDateTime;
   date: AWSDate;
@@ -103,6 +104,7 @@ export interface Mutation {
 }
 
 export interface CreateEntryInput {
+  categoryTags: AWSJSON;
   content: AWSJSON;
   createdAt?: AWSDateTime;
   date: AWSDate;
@@ -127,6 +129,7 @@ export interface DeleteTagInput {
 }
 
 export interface UpdateEntryInput {
+  categoryTags?: AWSJSON;
   content?: AWSJSON;
   createdAt?: AWSDateTime;
   date: AWSDate;
@@ -244,6 +247,7 @@ export interface QueryToListTagsResolver<TParent = any, TResult = any> {
 }
 
 export interface EntryTypeResolver<TParent = any> {
+  categoryTags?: EntryToCategoryTagsResolver<TParent>;
   content?: EntryToContentResolver<TParent>;
   createdAt?: EntryToCreatedAtResolver<TParent>;
   date?: EntryToDateResolver<TParent>;
@@ -251,6 +255,10 @@ export interface EntryTypeResolver<TParent = any> {
   tags?: EntryToTagsResolver<TParent>;
   title?: EntryToTitleResolver<TParent>;
   updatedAt?: EntryToUpdatedAtResolver<TParent>;
+}
+
+export interface EntryToCategoryTagsResolver<TParent = any, TResult = any> {
+  (parent: TParent, args: {}, context: any, info: GraphQLResolveInfo): TResult;
 }
 
 export interface EntryToContentResolver<TParent = any, TResult = any> {
@@ -391,7 +399,6 @@ export interface SubscriptionTypeResolver<TParent = any> {
 }
 
 export interface SubscriptionToOnCreateEntryArgs {
-  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date?: AWSDate;
   id?: string;
@@ -415,7 +422,6 @@ export interface SubscriptionToOnCreateTagResolver<TParent = any, TResult = any>
 }
 
 export interface SubscriptionToOnDeleteEntryArgs {
-  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date?: AWSDate;
   id?: string;
@@ -439,7 +445,6 @@ export interface SubscriptionToOnDeleteTagResolver<TParent = any, TResult = any>
 }
 
 export interface SubscriptionToOnUpdateEntryArgs {
-  content?: AWSJSON;
   createdAt?: AWSDateTime;
   date?: AWSDate;
   id?: string;

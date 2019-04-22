@@ -4,6 +4,7 @@ import { Block } from "../types/portable-text";
 
 export function newEntry(): Extend<CreateEntryInput, { content: Block[] }> {
   return {
+    categoryTags: {},
     content: [
       {
         _type: 'block',
