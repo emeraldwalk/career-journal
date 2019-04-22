@@ -51,6 +51,7 @@ const EntryListContainer: React.SFC<EntryListContainerProps> = ({
           path="/entry/:entryId"
           />
         <Route
+          allTags={allTags}
           component={EntryList}
           entries={entries}
           onAdd={() => {

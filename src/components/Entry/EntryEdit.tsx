@@ -5,6 +5,7 @@ import { Block } from '../../types/portable-text';
 import { Dict, Extend, findInDict } from '../../util/common';
 import { Link } from '@reach/router';
 import { TagSelector } from '../Tag';
+import { EntryTagList } from '.';
 
 export interface EntryEditProps {
   allTags: Dict<Tag>,
@@ -59,11 +60,6 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
     return null;
   }
 
-  // const categoryNames = ['Location', 'Project'];
-  // const categories = allTags
-  //   .filter(tag => categoryNames.indexOf(tag.value) > -1)
-  //   .map(tag => getCategory(allTags, tag.id));
-
   const categoryTags = categoryTagIds.map(id => allTags[id]);
 
   return (
@@ -85,11 +81,9 @@ const EntryEdit: React.SFC<EntryEditProps> = ({
         })}
         value={blocksToText(entry.content)}>
       </textarea>
-      <div className="c_entry-edit__tag-list">
-        {entryTags.map(tag =>
-          <span key={tag.id} className="c_entry-edit__tag">{tag.value}</span>
-        )}
-      </div>
+      <EntryTagList
+        entryTags={entryTags}
+      />
       <div className="c_entry-edit__tag-selectors">
         <div className="c_entry-edit__tag-selector-labels">
           {
