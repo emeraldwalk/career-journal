@@ -94,6 +94,33 @@ Resources:
     DependsOn:
       - DynamoDBPolicy
 
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Description: User pool for authenticating api users.
+    Properties:
+      UserPoolName: !Sub ${APIName}-user-pool
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: False
+          RequireNumbers: True
+          RequireSymbols: False
+          RequireUppercase: True
+      UserPoolTags:
+        Name: !Sub ${APIName}-user-pool
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Description: App client used by AppSync api.
+    Properties:
+      ClientName: !Sub ${APIName}-appsync-client
+      GenerateSecret: false
+      UserPoolId: !Ref UserPool
+
 Outputs:
   EntryTableName:
     Description: The name of the Entry table
@@ -101,3 +128,9 @@ Outputs:
   TagTableName:
     Description: The name of the Tag table
     Value: !Ref TagTable
+  CognitoUserPoolId:
+    Description: The Pool ID of the Cognito User Pool
+    Value: !Ref UserPool
+  CognitoUserPoolClientId:
+    Description: The Client ID for AWS AppSync Auth
+    Value: !Ref UserPoolClient
