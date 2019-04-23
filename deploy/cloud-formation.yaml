@@ -25,6 +25,9 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${APIName}EntryTable
 
   TagTable:
     Type: AWS::DynamoDB::Table
@@ -47,8 +50,54 @@ Resources:
       BillingMode: PAY_PER_REQUEST
       SSESpecification:
         SSEEnabled: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${APIName}TagTable
+
+  DynamoDBPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Managed policy to allow AppSync to access DynamoDB tables.
+      Path: /appsync/
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:DeleteItem
+            - dynamodb:UpdateItem
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:BatchGetItem
+            - dynamodb:BatchWriteItem
+            Resource:
+            - !Join [ "", [ !GetAtt EntryTable.Arn, "*" ] ]
+            - !Join [ "", [ !GetAtt TagTable.Arn, "*" ] ]
+
+  DynamoDBRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${APIName}-appsync-dynamodb-role
+      ManagedPolicyArns:
+        - Ref: DynamoDBPolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - sts:AssumeRole
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+    DependsOn:
+      - DynamoDBPolicy
 
 Outputs:
   EntryTableName:
     Description: The name of the Entry table
     Value: !Ref EntryTable
+  TagTableName:
+    Description: The name of the Tag table
+    Value: !Ref TagTable
