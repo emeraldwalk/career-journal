@@ -121,6 +121,236 @@ Resources:
       GenerateSecret: false
       UserPoolId: !Ref UserPool
 
+  AppSyncApi:
+    Type: AWS::AppSync::GraphQLApi
+    Description: The AppSync api.
+    Properties:
+      AuthenticationType: AMAZON_COGNITO_USER_POOLS
+      Name: !Sub ${APIName}
+      UserPoolConfig:
+        # The tutorial showed this pointing to the UserPoolClient
+        # but it seems this should point to the UserPool
+        UserPoolId: !Ref UserPool
+        AwsRegion: !Sub ${AWS::Region}
+        DefaultAction: ALLOW
+
+  AppSyncSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId: !GetAtt AppSyncApi.ApiId
+      Definition: |
+        input CreateEntryInput {
+          categoryTags: AWSJSON!
+          content: AWSJSON!
+          createdAt: AWSDateTime
+          date: AWSDate!
+          tags: [String!]!
+          title: String!
+          updatedAt: AWSDateTime
+        }
+
+        input CreateTagInput {
+          icon: String
+          parentId: ID!
+          value: String!
+        }
+
+        input DeleteEntryInput {
+          id: ID!
+        }
+
+        input DeleteTagInput {
+          id: ID!
+          parentId: ID!
+        }
+
+        type Entry {
+          categoryTags: AWSJSON!
+          content: AWSJSON!
+          createdAt: AWSDateTime
+          date: AWSDate!
+          id: ID!
+          tags: [String!]!
+          title: String!
+          updatedAt: AWSDateTime
+        }
+
+        type EntryConnection {
+          items: [Entry!]!
+          nextToken: String
+        }
+
+        type Mutation {
+          createEntry(input: CreateEntryInput!): Entry!
+          createTag(input: CreateTagInput!): Tag!
+          deleteEntry(input: DeleteEntryInput!): Entry!
+          deleteTag(input: DeleteTagInput!): Tag!
+          updateEntry(input: UpdateEntryInput!): Entry!
+          updateTag(input: UpdateTagInput!): Tag!
+        }
+
+        type Query {
+          getEntry(id: ID!): Entry
+          getTag(id: ID!, parentId: ID!): Tag
+          listEntries(filter: TableEntryFilterInput, limit: Int, nextToken: String): EntryConnection!
+          listTags(filter: TableTagFilterInput, limit: Int, nextToken: String): TagConnection!
+        }
+
+        type Subscription {
+          onCreateEntry(
+            createdAt: AWSDateTime,
+            date: AWSDate,
+            id: ID,
+            tags: [String!],
+            title: String
+          ): Entry
+            @aws_subscribe(mutations: ["createEntry"])
+          onCreateTag(
+            icon: String,
+            id: ID,
+            parentId: ID,
+            value: String
+          ): Tag
+            @aws_subscribe(mutations: ["createTag"])
+          onDeleteEntry(
+            createdAt: AWSDateTime,
+            date: AWSDate,
+            id: ID,
+            tags: [String!],
+            title: String
+          ): Entry
+            @aws_subscribe(mutations: ["deleteEntry"])
+          onDeleteTag(
+            icon: String,
+            id: ID,
+            parentId: ID,
+            value: String
+          ): Tag
+            @aws_subscribe(mutations: ["deleteTag"])
+          onUpdateEntry(
+            createdAt: AWSDateTime,
+            date: AWSDate,
+            id: ID,
+            tags: [String!],
+            title: String
+          ): Entry
+            @aws_subscribe(mutations: ["updateEntry"])
+          onUpdateTag(
+            icon: String,
+            id: ID,
+            parentId: ID,
+            value: String
+          ): Tag
+            @aws_subscribe(mutations: ["updateTag"])
+        }
+
+        input TableBooleanFilterInput {
+          eq: Boolean
+          ne: Boolean
+        }
+
+        input TableEntryFilterInput {
+          createdAt: TableStringFilterInput
+          date: TableStringFilterInput
+          id: TableIDFilterInput
+          tags: TableStringFilterInput
+          title: TableStringFilterInput
+          updatedAt: TableStringFilterInput
+        }
+
+        input TableFloatFilterInput {
+          between: [Float]
+          contains: Float
+          eq: Float
+          ge: Float
+          gt: Float
+          le: Float
+          lt: Float
+          ne: Float
+          notContains: Float
+        }
+
+        input TableIDFilterInput {
+          beginsWith: ID
+          between: [ID]
+          contains: ID
+          eq: ID
+          ge: ID
+          gt: ID
+          le: ID
+          lt: ID
+          ne: ID
+          notContains: ID
+        }
+
+        input TableIntFilterInput {
+          between: [Int]
+          contains: Int
+          eq: Int
+          ge: Int
+          gt: Int
+          le: Int
+          lt: Int
+          ne: Int
+          notContains: Int
+        }
+
+        input TableStringFilterInput {
+          beginsWith: String
+          between: [String]
+          contains: String
+          eq: String
+          ge: String
+          gt: String
+          le: String
+          lt: String
+          ne: String
+          notContains: String
+        }
+
+        input TableTagFilterInput {
+          icon: TableStringFilterInput
+          id: TableIDFilterInput
+          parentId: TableIDFilterInput
+          value: TableStringFilterInput
+        }
+
+        type Tag {
+          icon: String
+          id: ID!
+          parentId: ID!
+          value: String!
+        }
+
+        type TagConnection {
+          items: [Tag!]!
+          nextToken: String
+        }
+
+        input UpdateEntryInput {
+          categoryTags: AWSJSON
+          content: AWSJSON,
+          createdAt: AWSDateTime
+          date: AWSDate!
+          id: ID!
+          tags: [String!]
+          title: String!
+          updatedAt: AWSDateTime
+        }
+
+        input UpdateTagInput {
+          icon: String
+          id: ID!
+          parentId: ID!
+          value: String!
+        }
+
+        schema {
+          query: Query
+          mutation: Mutation
+          subscription: Subscription
+        }
+
 Outputs:
   EntryTableName:
     Description: The name of the Entry table
