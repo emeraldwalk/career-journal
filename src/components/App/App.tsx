@@ -1,5 +1,5 @@
 import React from 'react';
-import { EntryListContainer, Nav, Route, Router, TagListContainer } from '..';
+import { EntryListContainer, Nav, Route, Router, SignIn, TagListContainer } from '..';
 
 export interface AppProps {
 };
@@ -16,6 +16,10 @@ const App: React.SFC<AppProps> = ({}) => (
       <Route
         component={TagListContainer}
         path="/tag/:categoryId/*"
+        />
+      <Route
+        component={SignIn}
+        path="/signin"
         />
     </Router>
   </div>

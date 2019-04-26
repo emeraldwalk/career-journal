@@ -43,6 +43,7 @@
   },
   "dependencies": {
     "@reach/router": "^1.2.1",
+    "amazon-cognito-identity-js": "^3.0.11",
     "aws-appsync": "^1.7.2",
     "aws-appsync-react": "^1.2.7",
     "graphql-tag": "^2.10.1",

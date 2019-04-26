@@ -3,3 +3,5 @@ export { EntryListContainer } from './Entry';
 export { Nav } from './Nav';
 export { TagEdit, TagList, TagListContainer, TagListEdit } from './Tag';
 export { Route, Router } from './Route';
+export { SignIn } from './SignIn';
+export { SignUp } from './SignUp';
